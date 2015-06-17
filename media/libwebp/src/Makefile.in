@@ -12,15 +12,17 @@ include $(DEPTH)/config/autoconf.mk
 
 LIBRARY_NAME = mozwebp
 FORCE_STATIC_LIB = 1
-ifeq (WINT,$(OS_ARCH))
+ifeq (WINNT,$(OS_ARCH))
 VISIBILITY_FLAGS=
 endif
 
 LOCAL_INCLUDES += \
-  $(srcdir)/dec/ \
-  $(srcdir)/dsp/ \
-  $(srcdir)/utils/ \
-  $(srcdir)/webp/ \
+  -I. \
+  -I$(srcdir) \
+  -I$(srcdir)/dec/ \
+  -I$(srcdir)/dsp/ \
+  -I$(srcdir)/utils/ \
+  -I$(srcdir)/webp/ \
   $(NULL)
 
 ifeq ($(OS_TARGET),Android)
