@@ -266,6 +266,14 @@ jpeg_abort
 jpeg_abort_decompress
 jpeg_read_raw_data
 #endif
+#ifdef MOZ_WEBP
+WebPInitDecBufferInternal
+WebPFreeDecBuffer
+WebPINewDecoder
+WebPIDelete
+WebPIAppend
+WebPIDecGetRGB
+#endif
 qcms_enable_iccv4
 qcms_profile_create_rgb_with_gamma
 qcms_profile_from_memory
