@@ -145,6 +145,8 @@ public:
   virtual bool UseForPresentation(nsPresContext* aPresContext,
                                     nsMediaQueryResultCacheKey& aKey);
 
+  bool UseForPresentation(nsPresContext* aPresContext);
+
   enum Function {
     eURL,
     eURLPrefix,

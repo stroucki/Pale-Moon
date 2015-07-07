@@ -1151,6 +1151,12 @@ DocumentRule::SetConditionText(const nsAString& aConditionText)
 DocumentRule::UseForPresentation(nsPresContext* aPresContext,
                                  nsMediaQueryResultCacheKey& aKey)
 {
+  return UseForPresentation(aPresContext);
+}
+
+bool
+DocumentRule::UseForPresentation(nsPresContext* aPresContext)
+{
   nsIDocument *doc = aPresContext->Document();
   nsIURI *docURI = doc->GetDocumentURI();
   nsAutoCString docURISpec;
