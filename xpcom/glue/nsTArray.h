@@ -1544,8 +1544,8 @@ protected:
   // @param start  The index of the first element to destroy.
   // @param count  The number of elements to destroy.
   void DestructRange(index_type start, size_type count) {
-    elem_type* iter = Elements() + aStart;
-    elem_type *iend = iter + aCount;
+    elem_type* iter = Elements() + start;
+    elem_type *iend = iter + count;
     for (; iter != iend; ++iter) {
       elem_traits::Destruct(iter);
     }
