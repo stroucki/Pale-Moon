@@ -121,8 +121,7 @@ void
 nsCacheEntry::SetBinding(nsISupports * binding)
 {
     if (mBinding) {
-        // NS_RELEASE(mBinding);
-        nsCacheService::ReleaseObject_Locked(mBinding, mThread);
+        NS_RELEASE(mBinding);
         mBinding = nullptr;
     }
 
