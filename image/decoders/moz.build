@@ -30,6 +30,7 @@ CPP_SOURCES += [
     'nsICODecoder.cpp',
     'nsIconDecoder.cpp',
     'nsJPEGDecoder.cpp',
+    'nsJPEGXRDecoder.cpp',
     'nsPNGDecoder.cpp',
     'nsWEBPDecoder.cpp',
 ]

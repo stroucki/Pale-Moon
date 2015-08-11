@@ -11,15 +11,32 @@ VPATH		= @srcdir@
 include $(DEPTH)/config/autoconf.mk
 
 FORCE_STATIC_LIB = 1
-MODULE_NAME = nsDecodersModule
 LIBXUL_LIBRARY  = 1
-FAIL_ON_WARNINGS = 1
 
-CSRCS   = iccjpeg.c \
-          $(NULL)
+VPATH += \
+  $(srcdir)/image/decode \
+  $(srcdir)/image/sys \
+  $(srcdir)/jxrglue \
+  $(NULL) 
 
-# Decoders need RasterImage.h
-LOCAL_INCLUDES += -I$(topsrcdir)/image/src/
+CSRCS += \
+    decode.c \
+    postprocess.c \
+    segdec.c \
+    strInvTransform.c \
+    strPredQuantDec.c \
+    strdec.c \
+#    image/decode/strdec_x86.c \
+    adapthuff.c \
+    image.c \
+    strPredQuant.c \
+    strTransform.c \
+    strcodec.c \
+    JXRGlue.c \
+    JXRGlueDec.c \
+    JXRGluePFC.c \
+    JXRMeta.c \
+    $(NULL)
 
 # JPEG-XR decoder needs header files located in these directories
 LOCAL_INCLUDES += \
@@ -27,11 +44,6 @@ LOCAL_INCLUDES += \
     -I$(topsrcdir)/image/jxrlib/include \
     -I$(topsrcdir)/image/jxrlib/jxrglue \
     $(NULL)
-
-# PNG read/write stuff
-DEFINES		+= -DMOZ_PNG_WRITE \
-	-DMOZ_PNG_READ \
-	$(NULL)
 
 include $(topsrcdir)/config/rules.mk
 

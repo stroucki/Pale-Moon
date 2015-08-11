@@ -86,6 +86,7 @@
 #define IMAGE_JPEG                          "image/jpeg"
 #define IMAGE_JPG                           "image/jpg"
 #define IMAGE_PJPEG                         "image/pjpeg"
+#define IMAGE_JPEG_XR                       "image/vnd.ms-photo"
 #define IMAGE_PNG                           "image/png"
 #define IMAGE_X_PNG                         "image/x-png"
 #define IMAGE_PPM                           "image/x-portable-pixmap"

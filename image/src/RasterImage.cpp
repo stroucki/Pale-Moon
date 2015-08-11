@@ -28,6 +28,7 @@
 #include "nsPNGDecoder.h"
 #include "nsGIFDecoder2.h"
 #include "nsJPEGDecoder.h"
+#include "nsJPEGXRDecoder.h"
 #include "nsBMPDecoder.h"
 #include "nsICODecoder.h"
 #include "nsIconDecoder.h"
@@ -2130,6 +2131,11 @@ RasterImage::InitDecoder(bool aDoSizeDecode)
       mDecoder = new nsJPEGDecoder(*this,
                                    mHasBeenDecoded ? Decoder::SEQUENTIAL :
                                                      Decoder::PROGRESSIVE);
+      break;
+    case eDecoderType_jpeg_xr:
+      // If we have all the data we don't want to waste cpu time doing
+      // a progressive decode
+      mDecoder = new nsJPEGXRDecoder(*this, mHasBeenDecoded);
       break;
     case eDecoderType_bmp:
       mDecoder = new nsBMPDecoder(*this);

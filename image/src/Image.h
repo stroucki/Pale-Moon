@@ -28,7 +28,8 @@ public:
     eDecoderType_icon    = 5,
     eDecoderType_wbmp    = 6,
     eDecoderType_webp    = 7,
-    eDecoderType_unknown = 8
+    eDecoderType_jpeg_xr = 8,
+    eDecoderType_unknown = 9
   };
   static eDecoderType GetDecoderType(const char *aMimeType);
 
