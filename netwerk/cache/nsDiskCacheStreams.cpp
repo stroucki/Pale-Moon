@@ -14,7 +14,6 @@
 #include "nsThreadUtils.h"
 #include "mozilla/TimeStamp.h"
 #include <algorithm>
-#include "mozilla/VisualEventTracer.h"
 
 // we pick 16k as the max buffer size because that is the threshold above which
 //      we are unable to store the data in the cache block files
@@ -69,7 +68,6 @@ nsDiskCacheInputStream::nsDiskCacheInputStream( nsDiskCacheStreamIO * parent,
     , mPos(0)
     , mClosed(false)
 {
-    CACHE_LOG_DEBUG(("nsDiskCacheInputStream [%p]", this));
     NS_ADDREF(mStreamIO);
     mStreamIO->IncrementInputStreamCount();
 }
@@ -77,7 +75,6 @@ nsDiskCacheInputStream::nsDiskCacheInputStream( nsDiskCacheStreamIO * parent,
 
 nsDiskCacheInputStream::~nsDiskCacheInputStream()
 {
-    CACHE_LOG_DEBUG(("~nsDiskCacheInputStream [%p]", this));
     Close();
     mStreamIO->DecrementInputStreamCount();
     NS_RELEASE(mStreamIO);
@@ -201,10 +198,7 @@ nsDiskCacheStreamIO::nsDiskCacheStreamIO(nsDiskCacheBinding *   binding)
     , mBuffer(nullptr)
     , mOutputStreamIsOpen(false)
 {
-    // Give priority to the write-through cache, but init disk if unavailable.
-    mDevice = (nsDiskCacheDevice *)mBinding->mCacheEntry->SecondaryCacheDevice();
-    if (!mDevice)
-        mDevice = (nsDiskCacheDevice *)mBinding->mCacheEntry->CacheDevice();
+    mDevice = (nsDiskCacheDevice *)mBinding->mCacheEntry->CacheDevice();
 
     // acquire "death grip" on cache service
     nsCacheService *service = nsCacheService::GlobalInstance();
@@ -238,17 +232,12 @@ nsDiskCacheStreamIO::~nsDiskCacheStreamIO()
 nsresult
 nsDiskCacheStreamIO::GetInputStream(uint32_t offset, nsIInputStream ** inputStream)
 {
-    CACHE_LOG_DEBUG(("  GetInputStream...\n"));
     NS_ENSURE_ARG_POINTER(inputStream);
     NS_ENSURE_TRUE(offset == 0, NS_ERROR_NOT_IMPLEMENTED);
 
     *inputStream = nullptr;
     
-    if (!mBinding)  {
-        NS_WARNING("no binding-object?");
-        return NS_ERROR_NOT_AVAILABLE;
-    }
-    CACHE_LOG_DEBUG(("    entry is %p\n", mBinding->mCacheEntry));
+    if (!mBinding)  return NS_ERROR_NOT_AVAILABLE;
 
     if (mOutputStreamIsOpen) {
         NS_WARNING("already have an output stream open");
@@ -537,12 +526,6 @@ nsDiskCacheStreamIO::OpenCacheFile(int flags, PRFileDesc ** fd)
 nsresult
 nsDiskCacheStreamIO::ReadCacheBlocks(uint32_t bufferSize)
 {
-    mozilla::eventtracer::AutoEventTracer readCacheBlocks(
-        mBinding->mCacheEntry,
-        mozilla::eventtracer::eExec,
-        mozilla::eventtracer::eDone,
-        "net::cache::ReadCacheBlocks");
-
     NS_ASSERTION(mStreamEnd == mBinding->mCacheEntry->DataSize(), "bad stream");
     NS_ASSERTION(bufferSize <= kMaxBufferSize, "bufferSize too large for buffer");
     NS_ASSERTION(mStreamEnd <= bufferSize, "data too large for buffer");
@@ -566,12 +549,6 @@ nsDiskCacheStreamIO::ReadCacheBlocks(uint32_t bufferSize)
 nsresult
 nsDiskCacheStreamIO::FlushBufferToFile()
 {
-    mozilla::eventtracer::AutoEventTracer flushBufferToFile(
-        mBinding->mCacheEntry,
-        mozilla::eventtracer::eExec,
-        mozilla::eventtracer::eDone,
-        "net::cache::FlushBufferToFile");
-
     nsresult  rv;
     nsDiskCacheRecord * record = &mBinding->mRecord;
     

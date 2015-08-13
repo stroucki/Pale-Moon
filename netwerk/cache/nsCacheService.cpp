@@ -40,7 +40,6 @@
 #include "mozIStorageService.h"
 
 #include "mozilla/net/NeckoCommon.h"
-#include "mozilla/VisualEventTracer.h"
 #include <algorithm>
 
 using namespace mozilla;
@@ -942,8 +941,6 @@ class nsProcessRequestEvent : public nsRunnable {
 public:
     nsProcessRequestEvent(nsCacheRequest *aRequest)
     {
-        MOZ_EVENT_TRACER_NAME_OBJECT(aRequest, aRequest->mKey.get());
-        MOZ_EVENT_TRACER_WAIT(aRequest, "net::cache::ProcessRequest");
         mRequest = aRequest;
     }
 
@@ -1109,8 +1106,6 @@ nsCacheService::Init()
 
     mStorageService = do_GetService("@mozilla.org/storage/service;1", &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    MOZ_EVENT_TRACER_NAME_OBJECT(nsCacheService::gService, "nsCacheService");
 
     rv = NS_NewNamedThread("Cache I/O",
                            getter_AddRefs(mCacheIOThread));
@@ -1698,46 +1693,6 @@ nsCacheService::RemoveCustomOfflineDevice(nsOfflineCacheDevice *aDevice)
     return NS_OK;
 }
 
-nsCacheDevice *
-nsCacheService::FindRebindDevice_Internal(nsCacheEntry *entry)
-{
-    // Find out which device which currently holds the entry
-    bool fromDisk = (entry->CacheDevice() == mDiskDevice);
-    PRInt64 size = entry->Size();
-
-    // TODO sanity checks?
-
-    if (fromDisk) {
-        // The entry is bound to disk-device so we re-bind it to memory
-
-        // TODO should we actually check if it is allowed in memory?
-        // We re-bind it, so the STORE_AS_FILE flag may not be relevant..
-        if (mEnableMemoryDevice && entry->IsAllowedInMemory()) {
-
-            if (!mMemoryDevice)
-                (void)CreateMemoryDevice();  // ignore the error (check for mMemoryDevice instead)
-
-            if (mMemoryDevice && !mMemoryDevice->EntryIsTooBig(size))
-                return mMemoryDevice;
-        }
-    }
-    else
-    {
-        // The entry is in memory and is being evicted by the memory device
-        // so we re-bind it to disk to keep it around, if allowed
-        if (entry->IsStreamData() && entry->IsAllowedOnDisk() && mEnableDiskDevice) {
-
-            if (!mDiskDevice)
-                (void)CreateDiskDevice();  // ignore the error (check for mDiskDevice instead)
-
-            if (mDiskDevice && !mDiskDevice->EntryIsTooBig(size))
-                return mDiskDevice;
-        }
-    }
-
-    return nullptr;
-}
-
 nsresult
 nsCacheService::CreateRequest(nsCacheSession *   session,
                               const nsACString & clientKey,
@@ -1782,12 +1737,6 @@ public:
 
     NS_IMETHOD Run()
     {
-        mozilla::eventtracer::AutoEventTracer tracer(
-            static_cast<nsIRunnable*>(this),
-            eventtracer::eExec,
-            eventtracer::eDone,
-            "net::cache::OnCacheEntryAvailable");
-
         mListener->OnCacheEntryAvailable(mDescriptor, mAccessGranted, mStatus);
 
         NS_RELEASE(mListener);
@@ -1829,8 +1778,6 @@ nsCacheService::NotifyListener(nsCacheRequest *          request,
         return NS_ERROR_OUT_OF_MEMORY;
     }
 
-    MOZ_EVENT_TRACER_NAME_OBJECT(ev.get(), request->mKey.get());
-    MOZ_EVENT_TRACER_WAIT(ev.get(), "net::cache::OnCacheEntryAvailable");
     return request->mThread->Dispatch(ev, NS_DISPATCH_NORMAL);
 }
 
@@ -1840,12 +1787,6 @@ nsCacheService::ProcessRequest(nsCacheRequest *           request,
                                bool                       calledFromOpenCacheEntry,
                                nsICacheEntryDescriptor ** result)
 {
-    mozilla::eventtracer::AutoEventTracer tracer(
-        request,
-        eventtracer::eExec,
-        eventtracer::eDone,
-        "net::cache::ProcessRequest");
-
     // !!! must be called with mLock held !!!
     nsresult           rv;
     nsCacheEntry *     entry = nullptr;
@@ -2007,12 +1948,6 @@ nsCacheService::ActivateEntry(nsCacheRequest * request,
     if (!mInitialized || mClearingEntries)
         return NS_ERROR_NOT_AVAILABLE;
 
-    mozilla::eventtracer::AutoEventTracer tracer(
-        request,
-        eventtracer::eExec,
-        eventtracer::eDone,
-        "net::cache::ActivateEntry");
-
     nsresult        rv = NS_OK;
 
     NS_ASSERTION(request != nullptr, "ActivateEntry called with no request");
@@ -2113,13 +2048,6 @@ nsCacheService::SearchCacheDevices(nsCString * key, nsCacheStoragePolicy policy,
 {
     nsCacheEntry * entry = nullptr;
 
-    MOZ_EVENT_TRACER_NAME_OBJECT(key, key->BeginReading());
-    eventtracer::AutoEventTracer searchCacheDevices(
-        key,
-        eventtracer::eExec,
-        eventtracer::eDone,
-        "net::cache::SearchCacheDevices");
-
     CACHE_LOG_DEBUG(("mMemoryDevice: 0x%p\n", mMemoryDevice));
 
     *collision = false;
@@ -2174,32 +2102,8 @@ nsCacheService::EnsureEntryHasDevice(nsCacheEntry * entry)
     if (device || entry->IsDoomed())  return device;
 
     int64_t predictedDataSize = entry->PredictedDataSize();
-
-    // Try using the memory-device first
-    if (!device && mEnableMemoryDevice && entry->IsAllowedInMemory()) {        
-        if (!mMemoryDevice) {
-            (void)CreateMemoryDevice();  // ignore the error (check for mMemoryDevice instead)
-        }
-        if (mMemoryDevice) {
-            // Bypass the cache if Content-Length says entry will be too big
-            if (predictedDataSize != -1 &&
-                mMemoryDevice->EntryIsTooBig(predictedDataSize)) {
-                DebugOnly<nsresult> rv = nsCacheService::DoomEntry(entry);
-                NS_ASSERTION(NS_SUCCEEDED(rv),"DoomEntry() failed.");
-                return nullptr;
-            }
-
-            entry->MarkBinding();  // enter state of binding
-            nsresult rv = mMemoryDevice->BindEntry(entry);
-            entry->ClearBinding(); // exit state of binding
-            if (NS_SUCCEEDED(rv)) {
-                entry->SetCacheDevice(mMemoryDevice);
-                return mMemoryDevice;
-            }
-        }
-    }
-
     if (entry->IsStreamData() && entry->IsAllowedOnDisk() && mEnableDiskDevice) {
+        // this is the default
         if (!mDiskDevice) {
             (void)CreateDiskDevice();  // ignore the error (check for mDiskDevice instead)
         }
@@ -2220,7 +2124,29 @@ nsCacheService::EnsureEntryHasDevice(nsCacheEntry * entry)
                 device = mDiskDevice;
         }
     }
-         
+
+    // if we can't use mDiskDevice, try mMemoryDevice
+    if (!device && mEnableMemoryDevice && entry->IsAllowedInMemory()) {        
+        if (!mMemoryDevice) {
+            (void)CreateMemoryDevice();  // ignore the error (check for mMemoryDevice instead)
+        }
+        if (mMemoryDevice) {
+            // Bypass the cache if Content-Length says entry will be too big
+            if (predictedDataSize != -1 &&
+                mMemoryDevice->EntryIsTooBig(predictedDataSize)) {
+                DebugOnly<nsresult> rv = nsCacheService::DoomEntry(entry);
+                NS_ASSERTION(NS_SUCCEEDED(rv),"DoomEntry() failed.");
+                return nullptr;
+            }
+
+            entry->MarkBinding();  // enter state of binding
+            nsresult rv = mMemoryDevice->BindEntry(entry);
+            entry->ClearBinding(); // exit state of binding
+            if (NS_SUCCEEDED(rv))
+                device = mMemoryDevice;
+        }
+    }
+
     if (!device && entry->IsStreamData() &&
         entry->IsAllowedOffline() && mEnableOfflineDevice) {
         if (!mOfflineDevice) {
@@ -2585,13 +2511,11 @@ void
 nsCacheService::Lock()
 {
 //    TimeStamp start(TimeStamp::Now());
-//    MOZ_EVENT_TRACER_WAIT(nsCacheService::gService, "net::cache::lock");
 
     gService->mLock.Lock();
     gService->LockAcquired();
 
 //    TimeStamp stop(TimeStamp::Now());
-//    MOZ_EVENT_TRACER_EXEC(nsCacheService::gService, "net::cache::lock");
 }
 
 void
@@ -2604,8 +2528,6 @@ nsCacheService::Unlock()
 
     gService->LockReleased();
     gService->mLock.Unlock();
-
-//    MOZ_EVENT_TRACER_DONE(nsCacheService::gService, "net::cache::lock");
 
     for (uint32_t i = 0; i < doomed.Length(); ++i)
         doomed[i]->Release();
@@ -2712,12 +2634,6 @@ nsCacheService::DeactivateEntry(nsCacheEntry * entry)
 nsresult
 nsCacheService::ProcessPendingRequests(nsCacheEntry * entry)
 {
-    mozilla::eventtracer::AutoEventTracer tracer(
-        entry,
-        eventtracer::eExec,
-        eventtracer::eDone,
-        "net::cache::ProcessPendingRequests");
-
     nsresult            rv = NS_OK;
     nsCacheRequest *    request = (nsCacheRequest *)PR_LIST_HEAD(&entry->mRequestQ);
     nsCacheRequest *    nextRequest;
