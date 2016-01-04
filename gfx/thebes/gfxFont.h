@@ -1719,7 +1719,39 @@ public:
         return mKerningSet && !mKerningEnabled;
     }
 
+    /**
+     * Subclass this object to be notified of glyph changes. Delete the object
+     * when no longer needed.
+     */
+    class GlyphChangeObserver {
+    public:
+        virtual ~GlyphChangeObserver()
+        {
+            if (mFont) {
+                mFont->RemoveGlyphChangeObserver(this);
+            }
+        }
+        // This gets called when the gfxFont dies.
+        void ForgetFont() { mFont = nullptr; }
+        virtual void NotifyGlyphsChanged() = 0;
+    protected:
+        GlyphChangeObserver(gfxFont *aFont) : mFont(aFont)
+        {
+            mFont->AddGlyphChangeObserver(this);
+        }
+        gfxFont* mFont;
+    };
+    friend class GlyphChangeObserver;
+
+    bool GlyphsMayChange()
+    {
+        // Currently only fonts with SVG glyphs can have animated glyphs
+        return mFontEntry->TryGetSVGData(this);
+    }
+
 protected:
+    void AddGlyphChangeObserver(GlyphChangeObserver *aObserver);
+    void RemoveGlyphChangeObserver(GlyphChangeObserver *aObserver);
 
     bool HasSubstitutionRulesWithSpaceLookups(int32_t aRunScript) {
         NS_ASSERTION(GetFontEntry()->mHasSpaceFeaturesInitialized,
@@ -1926,6 +1958,7 @@ protected:
     nsExpirationState          mExpirationState;
     gfxFontStyle               mStyle;
     nsAutoTArray<gfxGlyphExtents*,1> mGlyphExtentsArray;
+    nsAutoPtr<nsTHashtable<nsPtrHashKey<GlyphChangeObserver> > > mGlyphChangeObservers;
 
     gfxFloat                   mAdjustedSize;
 
