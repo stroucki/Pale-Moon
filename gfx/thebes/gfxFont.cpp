@@ -272,7 +272,7 @@ gfxFontEntry::RenderSVGGlyph(gfxContext *aContext, uint32_t aGlyphId,
 }
 
 bool
-gfxFontEntry::TryGetSVGData()
+gfxFontEntry::TryGetSVGData(gfxFont* aFont)
 {
     if (!gfxPlatform::GetPlatform()->OpenTypeSVGEnabled()) {
         return false;
@@ -298,7 +298,17 @@ gfxFontEntry::TryGetSVGData()
         mSVGGlyphs = new gfxSVGGlyphs(svgTable);
     }
 
+    if (!mFontsUsingSVGGlyphs.Contains(aFont)) {
+        mFontsUsingSVGGlyphs.AppendElement(aFont);
+    }
+
     return !!mSVGGlyphs;
+}
+
+void
+gfxFontEntry::NotifyFontDestroyed(gfxFont* aFont)
+{
+    mFontsUsingSVGGlyphs.RemoveElement(aFont);
 }
 
 /**
@@ -1719,6 +1729,8 @@ gfxFont::~gfxFont()
     for (i = 0; i < count; ++i) {
         delete mGlyphExtentsArray[i];
     }
+
+    mFontEntry->NotifyFontDestroyed(this);
 }
 
 /*static*/
@@ -2301,7 +2313,7 @@ gfxFont::Draw(gfxTextRun *aTextRun, uint32_t aStart, uint32_t aEnd,
     double direction = aTextRun->GetDirection();
     gfxMatrix globalMatrix = aContext->CurrentMatrix();
 
-    bool haveSVGGlyphs = GetFontEntry()->TryGetSVGData();
+    bool haveSVGGlyphs = GetFontEntry()->TryGetSVGData(this);
     nsAutoPtr<gfxTextObjectPaint> objectPaint;
     if (haveSVGGlyphs && !aObjectPaint) {
         // If no pattern is specified for fill, use the current pattern
@@ -3384,7 +3396,7 @@ gfxFont::SetupGlyphExtents(gfxContext *aContext, uint32_t aGlyphID, bool aNeedTi
     aContext->IdentityMatrix();
 
     gfxRect svgBounds;
-    if (mFontEntry->TryGetSVGData() && mFontEntry->HasSVGGlyph(aGlyphID) &&
+    if (mFontEntry->TryGetSVGData(this) && mFontEntry->HasSVGGlyph(aGlyphID) &&
         mFontEntry->GetSVGGlyphExtents(aContext, aGlyphID, &svgBounds)) {
         gfxFloat d2a = aExtents->GetAppUnitsPerDevUnit();
         aExtents->SetTightGlyphExtents(aGlyphID,
