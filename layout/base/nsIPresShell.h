@@ -75,6 +75,7 @@ struct nsIntRect;
 class nsRegion;
 class nsRefreshDriver;
 class nsARefreshObserver;
+class nsAPostRefreshObserver;
 #ifdef ACCESSIBILITY
 class nsAccessibilityService;
 namespace mozilla {
@@ -1377,6 +1378,9 @@ public:
     return RemoveRefreshObserverExternal(aObserver, aFlushType);
 #endif
   }
+
+  virtual bool AddPostRefreshObserver(nsAPostRefreshObserver* aObserver);
+  virtual bool RemovePostRefreshObserver(nsAPostRefreshObserver* aObserver);
 
   /**
    * Initialize and shut down static variables.
