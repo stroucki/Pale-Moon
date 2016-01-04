@@ -326,6 +326,9 @@ public:
                             gfxRect *aResult);
     bool RenderSVGGlyph(gfxContext *aContext, uint32_t aGlyphId, int aDrawMode,
                         gfxTextObjectPaint *aObjectPaint);
+    // Call this when glyph geometry or rendering has changed
+    // (e.g. animated SVG glyphs)
+    void NotifyGlyphsChanged();
 
     virtual bool MatchesGenericFamily(const nsACString& aGeneric) const {
         return true;
@@ -1161,6 +1164,10 @@ public:
 
     enum { INVALID_WIDTH = 0xFFFF };
 
+    void NotifyGlyphsChanged() {
+        mTightGlyphExtents.Clear();
+    }
+
     // returns INVALID_WIDTH => not a contained glyph
     // Otherwise the glyph has no before-bearing or vertical bearings,
     // and the result is its width measured from the baseline origin, in
@@ -1695,6 +1702,9 @@ public:
             mWordCache.Clear();
         }
     }
+
+    // Glyph rendering/geometry has changed, so invalidate data as necessary.
+    void NotifyGlyphsChanged();
 
     virtual void SizeOfExcludingThis(nsMallocSizeOfFun aMallocSizeOf,
                                      FontCacheSizes*   aSizes) const;
