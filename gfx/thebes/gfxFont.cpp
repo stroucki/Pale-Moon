@@ -3817,6 +3817,7 @@ gfxFont::AddGlyphChangeObserver(GlyphChangeObserver *aObserver)
 {
     if (!mGlyphChangeObservers) {
         mGlyphChangeObservers = new nsTHashtable<nsPtrHashKey<GlyphChangeObserver> >;
+        mGlyphChangeObservers->Init();
     }
     mGlyphChangeObservers->PutEntry(aObserver);
 }
