@@ -109,6 +109,7 @@ gfxFontEntry::gfxFontEntry() :
     mWeight(500), mStretch(NS_FONT_STRETCH_NORMAL),
     mUVSOffset(0), mUVSData(nullptr),
     mLanguageOverride(NO_FONT_LANGUAGE_OVERRIDE),
+    mUnitsPerEm(0),
     mHBFace(nullptr),
     mGrFace(nullptr),
     mGrFaceRefCnt(0)
@@ -135,6 +136,7 @@ gfxFontEntry::gfxFontEntry(const nsAString& aName, bool aIsStandardFace) :
     mWeight(500), mStretch(NS_FONT_STRETCH_NORMAL),
     mUVSOffset(0), mUVSData(nullptr),
     mLanguageOverride(NO_FONT_LANGUAGE_OVERRIDE),
+    mUnitsPerEm(0),
     mHBFace(nullptr),
     mGrFace(nullptr),
     mGrFaceRefCnt(0)
