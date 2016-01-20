@@ -415,10 +415,6 @@ pref("toolkit.scrollbox.verticalScrollDistance", 3);
 pref("toolkit.scrollbox.horizontalScrollDistance", 5);
 pref("toolkit.scrollbox.clickToScroll.scrollDelay", 150);
 
-// Identity module
-pref("toolkit.identity.enabled", false);
-pref("toolkit.identity.debug", false);
-
 // Enable deprecation warnings.
 pref("devtools.errorconsole.deprecation_warnings", true);
 
@@ -1531,6 +1527,7 @@ pref("security.xssfilter.blockMode", false);
 pref("security.xssfilter.ignoreHeaders", false);
 pref("security.xssfilter.displayWarning", true);
 pref("security.xssfilter.blockDynamic", true);
+pref("security.xssfilter.srcwhitelist", "");
 pref("security.xssfilter.whitelist", "");
 
 // Mixed content blocking
@@ -2143,7 +2140,8 @@ pref("ui.mouse.radius.inputSource.touchOnly", true);
 #ifdef XP_WIN
 
 pref("font.name.serif.ar", "Times New Roman");
-pref("font.name.sans-serif.ar", "Arial");
+pref("font.name.sans-serif.ar", "Segoe UI");
+pref("font.name-list.sans-serif.ar", "Segoe UI, Tahoma, Arial");
 pref("font.name.monospace.ar", "Courier New");
 pref("font.name.cursive.ar", "Comic Sans MS");
 
