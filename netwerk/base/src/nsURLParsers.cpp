@@ -553,20 +553,31 @@ nsAuthURLParser::ParseServerInfo(const char *serverinfo, int32_t serverinfoLen,
     // delimiter).  check for illegal characters in the hostname.
     const char *p = serverinfo + serverinfoLen - 1;
     const char *colon = nullptr, *bracket = nullptr;
+    int32_t colons = 0;
     for (; p > serverinfo; --p) {
         switch (*p) {
             case ']':
                 bracket = p;
                 break;
             case ':':
-                if (bracket == nullptr)
+                if (bracket == nullptr) {
                     colon = p;
+                    colons++;
+                }
                 break;
             case ' ':
                 // hostname must not contain a space
                 NS_WARNING("malformed hostname");
                 return NS_ERROR_MALFORMED_URI;
         }
+    }
+
+    if (colons > 1 && !bracket && net_IsValidIPv6Addr(serverinfo, serverinfoLen)) {
+       // We have more than 1 colon in the host without having encountered
+       // a bracket and it's found to be a valid IPv6 address. This means an
+       // IPv6 address was entered without [] and is therefore malformed.
+       NS_WARNING("IPv6 address without brackets");
+       return NS_ERROR_MALFORMED_URI;
     }
 
     if (colon) {
