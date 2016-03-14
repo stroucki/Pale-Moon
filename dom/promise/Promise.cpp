@@ -184,9 +184,8 @@ Promise::JSCallback(JSContext *aCx, unsigned aArgc, JS::Value *aVp)
   MOZ_ASSERT(v.isObject());
 
   Promise* promise;
-  //if (NS_FAILED(UNWRAP_OBJECT(Promise, aCx, &v.toObject(), promise))) {
   if (NS_FAILED(UnwrapObject<Promise>(aCx, &v.toObject(), promise))) {
-    return false; //Throw(aCx, NS_ERROR_UNEXPECTED);
+    Throw<true>(aCx, NS_ERROR_UNEXPECTED);
   }
 
   Optional<JS::Handle<JS::Value> > value(aCx);

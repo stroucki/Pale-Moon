@@ -152,7 +152,8 @@ WrapperPromiseCallback::Call(const Optional<JS::Handle<JS::Value> >& aValue)
   ErrorResult rv;
 
   Optional<JS::Handle<JS::Value> > value(cx,                
-    mCallback->Call(mNextPromise, aValue, rv));
+    mCallback->Call((nsISupports*)mNextPromise->GetParentObject(), aValue, rv,
+                    CallbackObject::eRethrowExceptions));
 
   rv.WouldReportJSException();
 
