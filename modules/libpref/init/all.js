@@ -284,6 +284,9 @@ pref("media.play-stand-alone", true);
 pref("media.decoder.heuristic.dormant.enabled", true);
 pref("media.decoder.heuristic.dormant.timeout", 60000);
 
+#ifdef MOZ_JXR
+pref("media.jxr.enabled", false);
+#endif
 #ifdef MOZ_DIRECTSHOW
 pref("media.directshow.enabled", true);
 #endif
@@ -4051,8 +4054,15 @@ pref("image.cache.timeweight", 500);
 // Whether we attempt to downscale images during decoding.
 pref("image.downscale-during-decode.enabled", false);
 
+// TODO: Uncoment the MOZ_JXR condition once the observer of the
+//       image.jxr.enabled pref, which will either add or remove the type
+//       to or from the image.http.accept pref, is implemented. [rhinoduck]
 // The default Accept header sent for images loaded over HTTP(S)
-pref("image.http.accept", "image/webp,image/png,image/*;q=0.8,*/*;q=0.5");
+//#ifdef MOZ_JXR
+pref("image.http.accept", "image/webp,image/vnd.ms-photo,image/png,image/*;q=0.8,*/*;q=0.5");
+//#else
+//pref("image.http.accept", "image/webp,image/png,image/*;q=0.8,*/*;q=0.5");
+//#fi
 
 pref("image.high_quality_downscaling.enabled", true);
 
