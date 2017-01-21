@@ -52,9 +52,13 @@ Image::GetDecoderType(const char *aMimeType)
 
 #ifdef MOZ_JXR
   // JPEG-XR
-  else if (!strcmp(aMimeType, IMAGE_JPEG_XR))
-    if (gfxPrefs::MediaJXREnabled())
+  else if (
+      !strcmp(aMimeType, IMAGE_JPEG_XR) || !strcmp(aMimeType, IMAGE_MS_PHOTO)
+  ) {
+    if (gfxPrefs::MediaJXREnabled()) {
       rv = eDecoderType_jpeg_xr;
+    }
+  }
 #endif
 
   // WEBP

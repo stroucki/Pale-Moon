@@ -89,7 +89,8 @@
 #define IMAGE_JPEG                          "image/jpeg"
 #define IMAGE_JPG                           "image/jpg"
 #ifdef MOZ_JXR
-#define IMAGE_JPEG_XR                       "image/vnd.ms-photo"
+#define IMAGE_JPEG_XR                       "image/jxr"
+#define IMAGE_MS_PHOTO                      "image/vnd.ms-photo"
 #endif
 #define IMAGE_PJPEG                         "image/pjpeg"
 #define IMAGE_PNG                           "image/png"
