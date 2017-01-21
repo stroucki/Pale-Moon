@@ -8,7 +8,6 @@
 #include "Image.h"
 #include "nsRefreshDriver.h"
 #include "mozilla/TimeStamp.h"
-#include "mozilla/Preferences.h"
 
 namespace mozilla {
 namespace image {
@@ -53,9 +52,9 @@ Image::GetDecoderType(const char *aMimeType)
 
 #ifdef MOZ_JXR
   // JPEG-XR
-  else if (!strcmp(aMimeType, IMAGE_JPEG_XR) &&
-           Preferences::GetBool("media.jxr.enabled"))
-    rv = eDecoderType_jpeg_xr;
+  else if (!strcmp(aMimeType, IMAGE_JPEG_XR))
+    if (gfxPrefs::MediaJXREnabled())
+      rv = eDecoderType_jpeg_xr;
 #endif
 
   // WEBP

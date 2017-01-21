@@ -285,7 +285,25 @@ pref("media.decoder.heuristic.dormant.enabled", true);
 pref("media.decoder.heuristic.dormant.timeout", 60000);
 
 #ifdef MOZ_JXR
+// Enables/disables JXR support at runtime. Only enable this for testing as the
+// code has not been properly reviewed yet.
 pref("media.jxr.enabled", false);
+// Determines whether toggling "media.jxr.enabled" will amend the contents of
+// "image.http.accept" and thus the appearance of the HTTP Accept header field
+// for image requests. Leave this as 'true' for conditional JXR serving to work;
+// set this to 'false' if you don't want it meddling with the Accept field in
+// your HTTP headers for privacy or whatever other reasons.
+// NOTE: Set "media.jxr.enabled" to 'false' before changing this preference or
+//       check that "image.http.accept" contains what you want it to contain
+//       after.
+pref("media.jxr.autoaccept", true);
+// The MIME type that should be advertised in the Accept field of image HTTP
+// requets; the two choices are "image/jxr" and "image/vnd.ms-photo". This is
+// mainly for testing and should be removed once the preferred type (most likely
+// "image/jxr") has been chosen.
+// NOTE: Set "media.jxr.enabled" to 'false' before changing this preference if
+//       you rely on "image.http.accept" being autoupdated.
+pref("media.jxr.advertised_mime_type", "image/jxr");
 #endif
 #ifdef MOZ_DIRECTSHOW
 pref("media.directshow.enabled", true);
@@ -4054,15 +4072,8 @@ pref("image.cache.timeweight", 500);
 // Whether we attempt to downscale images during decoding.
 pref("image.downscale-during-decode.enabled", false);
 
-// TODO: Uncoment the MOZ_JXR condition once the observer of the
-//       image.jxr.enabled pref, which will either add or remove the type
-//       to or from the image.http.accept pref, is implemented. [rhinoduck]
 // The default Accept header sent for images loaded over HTTP(S)
-//#ifdef MOZ_JXR
-pref("image.http.accept", "image/webp,image/vnd.ms-photo,image/png,image/*;q=0.8,*/*;q=0.5");
-//#else
-//pref("image.http.accept", "image/webp,image/png,image/*;q=0.8,*/*;q=0.5");
-//#fi
+pref("image.http.accept", "image/webp,image/png,image/*;q=0.8,*/*;q=0.5");
 
 pref("image.high_quality_downscaling.enabled", true);
 
