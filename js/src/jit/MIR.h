@@ -3274,11 +3274,10 @@ class MInitProp
     public MixPolicy<ObjectPolicy<0>, BoxPolicy<1> >::Data
 {
     AlwaysTenuredPropertyName name_;
-    bool locked_;
 
   protected:
-    MInitProp(MDefinition *obj, PropertyName *name, MDefinition *value, bool locked)
-      : name_(name), locked_(locked)
+    MInitProp(MDefinition *obj, PropertyName *name, MDefinition *value)
+      : name_(name)
     {
         initOperand(0, obj);
         initOperand(1, value);
@@ -3289,9 +3288,9 @@ class MInitProp
     INSTRUCTION_HEADER(InitProp)
 
     static MInitProp* New(TempAllocator& alloc, MDefinition* obj, PropertyName* name,
-                          MDefinition *value, bool locked)
+                          MDefinition *value)
     {
-        return new(alloc) MInitProp(obj, name, value, locked);
+        return new(alloc) MInitProp(obj, name, value);
     }
 
     MDefinition* getObject() const {
@@ -3304,9 +3303,7 @@ class MInitProp
     PropertyName* propertyName() const {
         return name_;
     }
-    bool locked() const {
-        return locked_;
-    }
+
     bool possiblyCalls() const override {
         return true;
     }
