@@ -6395,7 +6395,7 @@ IonBuilder::jsop_initprop(PropertyName* name)
 
     bool useSlowPath = false;
 
-    if (obj->isUnknownValue()) {
+    if (obj->isUnknownValue() || obj->isLambda()) {
         useSlowPath = true;
     } else {
         templateObject = obj->toNewObject()->templateObject();
