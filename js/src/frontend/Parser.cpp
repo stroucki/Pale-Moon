@@ -5691,13 +5691,6 @@ Parser<FullParseHandler>::classStatement()
         return null();
     }
 
-    // Because the binding definitions keep track of their blockId, we need to
-    // create at least the inner binding later. Keep track of the name's position
-    // in order to provide it for the nodes created later.
-    TokenPos namePos = pos();
-
-    MUST_MATCH_TOKEN(TOK_LC, JSMSG_CURLY_BEFORE_CLASS);
-
     // TODO: implement local strictness (1101903)
     // bool savedStrictness = setLocalStrictMode(true);
 
@@ -5705,6 +5698,25 @@ Parser<FullParseHandler>::classStatement()
     ParseNode *classBlock = pushLexicalScope(&classStmt);
     if (!classBlock)
         return null();
+
+    // Because the binding definitions keep track of their blockId, we need to
+    // create at least the inner binding later. Keep track of the name's position
+    // in order to provide it for the nodes created later.
+    TokenPos namePos = pos();
+
+    ParseNode *classHeritage = null();
+    bool hasHeritage;
+    if (!tokenStream.matchToken(&hasHeritage, TOK_EXTENDS))
+        return null();
+    if (hasHeritage) {
+        if (!tokenStream.getToken(&tt))
+            return null();
+        classHeritage = memberExpr(tt, true);
+        if (!classHeritage)
+            return null();
+    }
+
+    MUST_MATCH_TOKEN(TOK_LC, JSMSG_CURLY_BEFORE_CLASS);
 
     ParseNode *classMethods = propertyList(ClassBody);
     if (!classMethods)
@@ -5727,7 +5739,7 @@ Parser<FullParseHandler>::classStatement()
 
     // MOZ_ALWAYS_TRUE(setLocalStrictMode(savedStrictness));
 
-    return handler.newClass(nameNode, null(), classBlock);
+    return handler.newClass(nameNode, classHeritage, classBlock);
 }
 
 template <>
