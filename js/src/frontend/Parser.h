@@ -548,7 +548,6 @@ class Parser : private JS::AutoGCRooter, public StrictModeGetter
     Node throwStatement();
     Node tryStatement();
     Node debuggerStatement();
-    Node classStatement();
 
     Node lexicalDeclaration(bool isConst);
     Node importDeclaration();
@@ -610,6 +609,9 @@ class Parser : private JS::AutoGCRooter, public StrictModeGetter
     bool argumentList(Node listNode, bool* isSpread);
     Node destructuringExpr(BindData<ParseHandler>* data, TokenKind tt);
     Node destructuringExprWithoutYield(BindData<ParseHandler>* data, TokenKind tt, unsigned msg);
+
+    enum ClassContext { ClassStatement, ClassExpression };
+    Node classDefinition(ClassContext classContext);
 
     Node identifierName();
 
