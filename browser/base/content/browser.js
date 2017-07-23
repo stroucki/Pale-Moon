@@ -879,31 +879,18 @@ var gBrowserInit = {
     ToolbarIconColor.init();
 
 #ifdef XP_WIN
-    if ((window.matchMedia("(-moz-os-version: windows-win8)").matches ||
-         window.matchMedia("(-moz-os-version: windows-win10)").matches) &&
+    if (window.matchMedia("(-moz-os-version: windows-win8)").matches &&
         window.matchMedia("(-moz-windows-default-theme)").matches) {
       let windows8WindowFrameColor = Cu.import("resource:///modules/Windows8WindowFrameColor.jsm", {}).Windows8WindowFrameColor;
       
       var windowFrameColor;
-      if (window.matchMedia("(-moz-os-version: windows-win10)").matches)
-        windowFrameColor = windows8WindowFrameColor.get_win10();
-      else
-        windowFrameColor = windows8WindowFrameColor.get_win8();
+      windowFrameColor = windows8WindowFrameColor.get_win8();
 
-      // Formula from W3C's WCAG 2.0 spec's color ratio and relative luminance,
-      // section 1.3.4, http://www.w3.org/TR/WCAG20/ .
-      windowFrameColor = windowFrameColor.map((color) => {
-        if (color <= 10) {
-          return color / 255 / 12.92;
-        }
-        return Math.pow(((color / 255) + 0.055) / 1.055, 2.4);
-      });
-      let backgroundLuminance = windowFrameColor[0] * 0.2126 +
-                                windowFrameColor[1] * 0.7152 +
-                                windowFrameColor[2] * 0.0722;
-      let foregroundLuminance = 0; // Default to black for foreground text.
-      let contrastRatio = (backgroundLuminance + 0.05) / (foregroundLuminance + 0.05);
-      if (contrastRatio < 7) { // Contrast ratio not at least 7:1 -- per WCAG
+      // Formula from Microsoft's UWP guideline.
+      let backgroundLuminance = (windowFrameColor[0] * 2 +
+                                 windowFrameColor[1] * 5 +
+                                 windowFrameColor[2]) / 8;
+      if (backgroundLuminance <= 128) {
         document.documentElement.setAttribute("darkwindowframe", "true");
       }
     }
@@ -7053,6 +7040,7 @@ let ToolbarIconColor = {
     window.addEventListener("activate", this);
     window.addEventListener("deactivate", this);
     Services.obs.addObserver(this, "lightweight-theme-styling-update", false);
+    gPrefService.addObserver("ui.colorChanged", this, false);
 
     // If the window isn't active now, we assume that it has never been active
     // before and will soon become active such that inferFromText will be
@@ -7067,6 +7055,7 @@ let ToolbarIconColor = {
     window.removeEventListener("activate", this);
     window.removeEventListener("deactivate", this);
     Services.obs.removeObserver(this, "lightweight-theme-styling-update");
+    gPrefService.removeObserver("ui.colorChanged", this);
   },
 
   handleEvent: function (event) {
@@ -7085,6 +7074,18 @@ let ToolbarIconColor = {
         // lightweight-theme-styling-update observer.
         setTimeout(() => { this.inferFromText(); }, 0);
         break;
+      case "nsPref:changed":
+        // system color change
+        var colorChangedPref = false;
+        try {
+          colorChangedPref = gPrefService.getBoolPref("ui.colorChanged");
+        } catch(e) { }
+        // if pref indicates change, call inferFromText() on a small delay
+        if (colorChangedPref == true)
+          setTimeout(() => { this.inferFromText(); }, 300);
+        break;
+      default:
+        console.error("ToolbarIconColor: Uncaught topic " + aTopic);
     }
   },
 
@@ -7109,15 +7110,18 @@ let ToolbarIconColor = {
     let luminances = new Map;
     for (let toolbar of document.querySelectorAll(toolbarSelector)) {
       let [r, g, b] = parseRGB(getComputedStyle(toolbar).color);
-      let luminance = 0.2125 * r + 0.7154 * g + 0.0721 * b;
+      let luminance = (2 * r + 5 * g + b) / 8;
 	  luminances.set(toolbar, luminance);
     }
 
     for (let [toolbar, luminance] of luminances) {
-      if (luminance <= 110)
+      if (luminance <= 128)
         toolbar.removeAttribute("brighttext");
       else
         toolbar.setAttribute("brighttext", "true");
     }
+
+    // Clear pref if set, since we're done applying the color changes.
+    gPrefService.clearUserPref("ui.colorChanged");
   }
 }
