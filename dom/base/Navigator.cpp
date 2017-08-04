@@ -2575,6 +2575,7 @@ Navigator::GetUserAgent(nsPIDOMWindow* aWindow, nsIURI* aURI,
                         bool aIsCallerChrome,
                         nsAString& aUserAgent)
 {
+// XXXstroucki user agent
   MOZ_ASSERT(NS_IsMainThread());
 
   nsresult rv;

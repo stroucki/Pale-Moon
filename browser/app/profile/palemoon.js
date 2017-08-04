@@ -1102,6 +1102,7 @@ pref("browser.display.standalone_images.background_color", "#2E3B41");
 // ****************** domain-specific UAs ******************
 
 // AMO needs "Firefox", obviously - pass on the OS (determined at build time)
+// XXXstroucki user agent leaving this alone
 #ifdef XP_UNIX
 #ifdef XP_MACOSX
 pref("general.useragent.override.addons.mozilla.org","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.9) Gecko/20100101 Firefox/27.9 (Pale Moon)");

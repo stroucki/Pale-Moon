@@ -424,6 +424,7 @@ nsHttpHandler::AddStandardRequestHeaders(nsHttpHeaderArray *request)
     nsresult rv;
 
     // Add the "User-Agent" header
+// XXXstroucki user agent send if blank?
     rv = request->SetHeader(nsHttp::User_Agent, UserAgent());
     if (NS_FAILED(rv)) return rv;
 
@@ -636,6 +637,11 @@ nsHttpHandler::BuildUserAgent()
                            mCompatDevice.Length() +
                            mDeviceModelId.Length() +
                            14);
+
+// XXXstroucki user agent
+// just return blank by default. it will not add the header then.
+mUserAgent.Assign("");
+return;
 
     // Application portion
     mUserAgent.Assign(mLegacyAppName);
