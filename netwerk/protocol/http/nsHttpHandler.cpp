@@ -704,6 +704,7 @@ return;
 void
 nsHttpHandler::InitUserAgentComponents()
 {
+// XXXstroucki user agent
 #ifndef MOZ_UA_OS_AGNOSTIC
     // Gather platform.
     mPlatform.AssignLiteral(
