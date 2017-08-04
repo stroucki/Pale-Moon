@@ -23,9 +23,13 @@ interface HTMLCanvasElement : HTMLElement {
   [Throws]
   nsISupports? getContext(DOMString contextId, optional any contextOptions = null);
 
+// XXXstroucki canvas deny direct exfiltration
+/*
   [Throws]
   DOMString toDataURL(optional DOMString type = "",
                       optional any encoderOptions);
+*/
+
   [Throws]
   void toBlob(FileCallback _callback,
               optional DOMString type = "",
