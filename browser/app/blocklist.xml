@@ -3493,11 +3493,10 @@ xmlns="http://www.mozilla.org/2006/addons-blocklist">
       vulnerabilitystatus="1"></versionRange>
       <infoURL>https://java.com/</infoURL>
     </pluginItem>
+<!-- XXXstroucki java who wants java plugin? -->
     <pluginItem blockID="p1060">
       <match name="filename" exp="JavaAppletPlugin\.plugin" />
-      <versionRange minVersion="Java 8 Update 46"
-      maxVersion="Java 8 Update 64" severity="0"
-      vulnerabilitystatus="1"></versionRange>
+      <versionRange severity="0" vulnerabilitystatus="1"></versionRange>
       <infoURL>https://java.com/</infoURL>
     </pluginItem>
     <pluginItem blockID="p1061">
