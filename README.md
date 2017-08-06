@@ -8,7 +8,7 @@ mostly laid out like Mozilla-based products.
 
 My intents are among others to compile Pale Moon for the Mac and to 
 frustrate access to information that is not obviously the concern of a 
-web browser.
+web browser. I also take a hostile position with respect to advertisements.
 
 Blocked APIs:
 
