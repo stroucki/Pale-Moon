@@ -304,6 +304,7 @@ static PRStatus PR_CALLBACK SocketConnectContinue(
     }
 
     PR_ASSERT(out_flags & PR_POLL_WRITE);
+
     return PR_SUCCESS;
 
 #elif defined(XP_OS2)
@@ -751,7 +752,7 @@ static PRInt32 PR_CALLBACK SocketSendTo(
 #endif
 
 	count = 0;
-	while (amount > 0) {
+	do {
 		temp = _PR_MD_SENDTO(fd, buf, amount, flags,
 		    addrp, PR_NETADDR_SIZE(addr), timeout);
 		if (temp < 0) {
@@ -764,7 +765,7 @@ static PRInt32 PR_CALLBACK SocketSendTo(
 		}
 		buf = (const void*) ((const char*)buf + temp);
 		amount -= temp;
-	}
+	} while (amount > 0);
 	return count;
 }
 

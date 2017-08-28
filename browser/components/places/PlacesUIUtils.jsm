@@ -26,43 +26,6 @@ XPCOMUtils.defineLazyGetter(this, "PlacesUtils", function() {
   return PlacesUtils;
 });
 
-// This function isn't public because it's synchronous.
-// Maybe this should be removed later, see bug 1072833.
-function IsLivemark(aItemId) {
-  // Since this check may be done on each dragover event, it's worth maintaining
-  // a cache.
-  let self = IsLivemark;
-  if (!("ids" in self)) {
-    const LIVEMARK_ANNO = PlacesUtils.LMANNO_FEEDURI;
-
-    let idsVec = PlacesUtils.annotations.getItemsWithAnnotation(LIVEMARK_ANNO);
-    self.ids = new Set(idsVec);
-
-    let obs = Object.freeze({
-      QueryInterface: XPCOMUtils.generateQI(Ci.nsIAnnotationObserver),
-
-      onItemAnnotationSet(itemId, annoName) {
-        if (annoName == LIVEMARK_ANNO)
-          self.ids.add(itemId);
-      },
-
-      onItemAnnotationRemoved(itemId, annoName) {
-        // If annoName is set to an empty string, the item is gone.
-        if (annoName == LIVEMARK_ANNO || annoName == "")
-          self.ids.delete(itemId);
-      },
-
-      onPageAnnotationSet() { },
-      onPageAnnotationRemoved() { },
-    });
-    PlacesUtils.annotations.addObserver(obs);
-    PlacesUtils.registerShutdownFunction(() => {
-      PlacesUtils.annotations.removeObserver(obs);
-    });
-  }
-  return self.ids.has(aItemId);
-}
-
 this.PlacesUIUtils = {
   ORGANIZER_LEFTPANE_VERSION: 7,
   ORGANIZER_FOLDER_ANNO: "PlacesOrganizer/OrganizerFolder",
@@ -304,6 +267,52 @@ this.PlacesUIUtils = {
 
     return new PlacesCreateLivemarkTransaction(feedURI, siteURI, aData.title,
                                                aContainer, aIndex, annos);
+  },
+
+  /**
+   * Test if a bookmark item = a live bookmark item.
+   *
+   * @param aItemId
+   *        item identifier
+   * @return true if a live bookmark item, false otherwise.
+   *
+   * @note Maybe this should be removed later, see bug 1072833.
+   */
+  _isLivemark:
+  function PUIU__isLivemark(aItemId)
+  {
+    // Since this check may be done on each dragover event, it's worth maintaining
+    // a cache.
+    let self = PUIU__isLivemark;
+    if (!("ids" in self)) {
+      const LIVEMARK_ANNO = PlacesUtils.LMANNO_FEEDURI;
+
+      let idsVec = PlacesUtils.annotations.getItemsWithAnnotation(LIVEMARK_ANNO);
+      self.ids = new Set(idsVec);
+
+      let obs = Object.freeze({
+        QueryInterface: XPCOMUtils.generateQI(Ci.nsIAnnotationObserver),
+
+        onItemAnnotationSet(itemId, annoName) {
+          if (annoName == LIVEMARK_ANNO)
+            self.ids.add(itemId);
+        },
+
+        onItemAnnotationRemoved(itemId, annoName) {
+          // If annoName is set to an empty string, the item is gone.
+          if (annoName == LIVEMARK_ANNO || annoName == "")
+            self.ids.delete(itemId);
+        },
+
+        onPageAnnotationSet() { },
+        onPageAnnotationRemoved() { },
+      });
+      PlacesUtils.annotations.addObserver(obs);
+      PlacesUtils.registerShutdownFunction(() => {
+        PlacesUtils.annotations.removeObserver(obs);
+      });
+    }
+    return self.ids.has(aItemId);
   },
 
   /**
@@ -585,7 +594,7 @@ this.PlacesUIUtils = {
       throw new Error("invalid value for aNodeOrItemId");
     }
 
-    if (itemId == PlacesUtils.placesRootId || IsLivemark(itemId))
+    if (itemId == PlacesUtils.placesRootId || this._isLivemark(itemId))
       return true;
 
     // leftPaneFolderId, and as a result, allBookmarksFolderId, is a lazy getter
@@ -700,15 +709,33 @@ this.PlacesUIUtils = {
     browserWindow.gBrowser.loadTabs(urls, loadInBackground, false);
   },
 
+  openLiveMarkNodesInTabs:
+  function PUIU_openLiveMarkNodesInTabs(aNode, aEvent, aView) {
+    let window = aView.ownerWindow;
+
+    PlacesUtils.livemarks.getLivemark({id: aNode.itemId})
+      .then(aLivemark => {
+        urlsToOpen = [];
+
+        let nodes = aLivemark.getNodesForContainer(aNode);
+        for (let node of nodes) {
+          urlsToOpen.push({uri: node.uri, isBookmark: false});
+        }
+
+        if (this._confirmOpenInTabs(urlsToOpen.length, window)) {
+          this._openTabset(urlsToOpen, aEvent, window);
+        }
+      }, Cu.reportError);
+  },
+
   openContainerNodeInTabs:
   function PUIU_openContainerInTabs(aNode, aEvent, aView) {
     let window = aView.ownerWindow;
 
     let urlsToOpen = PlacesUtils.getURLsForContainerNode(aNode);
-    if (!this._confirmOpenInTabs(urlsToOpen.length, window))
-      return;
-
-    this._openTabset(urlsToOpen, aEvent, window);
+    if (this._confirmOpenInTabs(urlsToOpen.length, window)) {
+      this._openTabset(urlsToOpen, aEvent, window);
+    }
   },
 
   openURINodesInTabs: function PUIU_openURINodesInTabs(aNodes, aEvent, aView) {
@@ -746,12 +773,12 @@ this.PlacesUIUtils = {
    * web panel.
    * see also openUILinkIn
    */
-  openNodeIn: function PUIU_openNodeIn(aNode, aWhere, aView) {
+  openNodeIn: function PUIU_openNodeIn(aNode, aWhere, aView, aPrivate) {
     let window = aView.ownerWindow;
-    this._openNodeIn(aNode, aWhere, window);
+    this._openNodeIn(aNode, aWhere, window, aPrivate);
   },
 
-  _openNodeIn: function PUIU_openNodeIn(aNode, aWhere, aWindow) {
+  _openNodeIn: function PUIU_openNodeIn(aNode, aWhere, aWindow, aPrivate=false) {
     if (aNode && PlacesUtils.nodeIsURI(aNode) &&
         this.checkURLSecurity(aNode, aWindow)) {
       let isBookmark = PlacesUtils.nodeIsBookmark(aNode);
@@ -776,7 +803,8 @@ this.PlacesUIUtils = {
         }
       }
       aWindow.openUILinkIn(aNode.uri, aWhere, {
-        inBackground: Services.prefs.getBoolPref("browser.tabs.loadBookmarksInBackground")
+        inBackground: Services.prefs.getBoolPref("browser.tabs.loadBookmarksInBackground"),
+        private: aPrivate,
       });
     }
   },
