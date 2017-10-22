@@ -175,7 +175,7 @@ var status4evarPrefs =
 		{
 			this.progressToolbarCSSPref.value = "#33FF33";
 		}
-		this.dynamicProgressStyle.cssRules[2].style.background = this.progressToolbarCSSPref.value;
+		this.dynamicProgressStyle.cssRules[1].style.background = this.progressToolbarCSSPref.value;
 	},
 
 	progressToolbarStyleChanged: function()
@@ -209,8 +209,8 @@ var status4evarPrefs =
 
 	get downloadProgressPref()
 	{
-		delete this.downloadPRogressPref;
-		return this.downloadPRogressPref = document.getElementById("status4evar-pref-download-progress");
+		delete this.downloadProgressPref;
+		return this.downloadProgressPref = document.getElementById("status4evar-pref-download-progress");
 	},
 
 	get downloadProgressColorActivePref()
@@ -242,40 +242,6 @@ var status4evarPrefs =
 	},
 
 //
-// Advanced prefs warning page
-//
-	get advancedDeck()
-	{
-		delete this.advancedDeck;
-		return this.advancedDeck = document.getElementById("status4evar-pref-advanced-deck");
-	},
-
-	get advancedShowWarningPref()
-	{
-		delete this.advancedShowWarningPref;
-		return this.advancedShowWarningPref = document.getElementById("status4evar-pref-advanced-showWarning");
-	},
-
-	get advancedShowWarningCheck()
-	{
-		delete this.advancedShowWarningCheck;
-		return this.advancedShowWarningCheck = document.getElementById("showWarningNextTime");
-	},
-
-	get advancedContinueButton()
-	{
-		delete this.advancedContinueButton;
-		return this.advancedContinueButton = document.getElementById("warningButton");
-	},
-
-	advancedShowPrefs: function()
-	{
-		this.advancedShowWarningPref.value = this.advancedShowWarningCheck.checked;
-		Services.prefs.setBoolPref(this.advancedShowWarningPref.getAttribute("name"), this.advancedShowWarningPref.value);
-		this.advancedDeck.selectedIndex = 1;
-	},
-
-//
 // Pref Window load
 //
 	get downloadButtonActionCommandPref()
@@ -292,13 +258,6 @@ var status4evarPrefs =
 
 	onPrefWindowLoad: function()
 	{
-		let showWarning = this.advancedShowWarningPref.value;
-		this.advancedDeck.selectedIndex = ((showWarning) ? 0 : 1);
-		if(showWarning)
-		{
-			this.advancedContinueButton.focus();
-		}
-
 		if(!this.downloadButtonActionCommandPref.value)
 		{
 			this.downloadButtonActionThirdPartyItem.disabled = true;

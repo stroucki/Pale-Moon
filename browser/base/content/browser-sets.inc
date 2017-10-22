@@ -34,6 +34,7 @@
     <command id="cmd_closeWindow" oncommand="BrowserTryToCloseWindow()"/>
     <command id="cmd_ToggleTabsOnTop" oncommand="TabsOnTop.toggle()"/>
     <command id="cmd_CustomizeToolbars" oncommand="BrowserCustomizeToolbar()"/>
+    <command id="cmd_restartApplication" oncommand="restart(false);"/>
     <command id="cmd_quitApplication" oncommand="goQuitApplication()"/>
 
 
@@ -396,6 +397,7 @@
 
     <key id="key_privatebrowsing" command="Tools:PrivateBrowsing" key="&privateBrowsingCmd.commandkey;" modifiers="accel,shift"/>
     <key id="key_sanitize" command="Tools:Sanitize" keycode="VK_DELETE" modifiers="accel,shift"/>
+    <key id="key_restartApplication" key="&appMenuRestartCmd.commandkey;" command="cmd_restartApplication" modifiers="accel,alt"/>
 #ifdef XP_MACOSX
     <key id="key_sanitize_mac" command="Tools:Sanitize" keycode="VK_BACK" modifiers="accel,shift"/>
 #endif

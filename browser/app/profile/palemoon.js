@@ -50,6 +50,7 @@ pref("extensions.getAddons.recommended.url", "https://services.addons.mozilla.or
 // Blocklist preferences
 pref("extensions.blocklist.enabled", true);
 pref("extensions.blocklist.interval", 86400);
+pref("extensions.blocklist.level.updated", false);
 // Controls what level the blocklist switches from warning about items to forcibly
 // blocking them.
 pref("extensions.blocklist.level", 2);
@@ -132,11 +133,8 @@ pref("app.update.cert.maxErrors", 5);
 // |app.update.url.override| user preference has been set for testing updates or
 // when the |app.update.cert.checkAttributes| preference is set to false. Also,
 // the |app.update.url.override| preference should ONLY be used for testing.
-pref("app.update.certs.1.issuerName", "CN=Thawte SSL CA,O=\"Thawte, Inc.\",C=US");
-pref("app.update.certs.1.commonName", "aus3.mozilla.org");
-
-pref("app.update.certs.2.issuerName", "CN=DigiCert Secure Server CA,O=DigiCert Inc,C=US");
-pref("app.update.certs.2.commonName", "aus3.mozilla.org");
+pref("app.update.certs.1.issuerName", "CN=COMODO RSA Domain Validation Secure Server CA,O=COMODO CA Limited,L=Salford,ST=Greater Manchester,C=GB");
+pref("app.update.certs.1.commonName", "*.palemoon.org");
 
 // Whether or not app updates are enabled
 pref("app.update.enabled", true);
@@ -504,6 +502,7 @@ pref("privacy.clearOnShutdown.cache",       true);
 pref("privacy.clearOnShutdown.sessions",    true);
 pref("privacy.clearOnShutdown.offlineApps", false);
 pref("privacy.clearOnShutdown.siteSettings", false);
+pref("privacy.clearOnShutdown.connectivityData", false);
 
 pref("privacy.cpd.history",                 true);
 pref("privacy.cpd.formdata",                true);
@@ -514,6 +513,7 @@ pref("privacy.cpd.cache",                   true);
 pref("privacy.cpd.sessions",                true);
 pref("privacy.cpd.offlineApps",             false);
 pref("privacy.cpd.siteSettings",            false);
+pref("privacy.cpd.connectivityData",        false);
 
 // What default should we use for the time span in the sanitizer:
 // 0 - Clear everything
@@ -997,6 +997,7 @@ pref("services.sync.prefs.sync.privacy.clearOnShutdown.offlineApps", true);
 pref("services.sync.prefs.sync.privacy.clearOnShutdown.passwords", true);
 pref("services.sync.prefs.sync.privacy.clearOnShutdown.sessions", true);
 pref("services.sync.prefs.sync.privacy.clearOnShutdown.siteSettings", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.connectivityData", true);
 pref("services.sync.prefs.sync.privacy.donottrackheader.enabled", true);
 pref("services.sync.prefs.sync.privacy.donottrackheader.value", true);
 pref("services.sync.prefs.sync.privacy.sanitize.sanitizeOnShutdown", true);
@@ -1119,10 +1120,8 @@ pref("status4evar.addonbar.closeButton", false);
 pref("status4evar.addonbar.legacyShim", true);
 pref("status4evar.addonbar.windowGripper", true);
 
-pref("status4evar.advanced.showWarning", true);
 pref("status4evar.advanced.status.detectFullScreen", false);
 pref("status4evar.advanced.status.detectVideo", true);
-pref("status4evar.advanced.urlbar.forceBinding", false);
 
 pref("status4evar.download.button.action", 1);
 pref("status4evar.download.button.action.command", "");
@@ -1138,19 +1137,10 @@ pref("status4evar.download.tooltip", 2);
 
 pref("status4evar.firstRun", true);
 
-//pref("status4evar.progress.tab", 1);
-//pref("status4evar.progress.tab.css", "#333399");
-//pref("status4evar.progress.tab.style", true);
-
 pref("status4evar.progress.toolbar.css", "#333399");
 pref("status4evar.progress.toolbar.force", false);
 pref("status4evar.progress.toolbar.style", false);
 pref("status4evar.progress.toolbar.style.advanced", false);
-
-pref("status4evar.progress.urlbar", 0);
-pref("status4evar.progress.urlbar.css", "#333399");
-pref("status4evar.progress.urlbar.style", false);
-pref("status4evar.progress.urlbar.style.advanced", false);
 
 pref("status4evar.status", 1);
 pref("status4evar.status.default", true);
@@ -1162,10 +1152,6 @@ pref("status4evar.status.linkOver.delay.show", 0);
 pref("status4evar.status.linkOver.delay.hide", 0);
 
 pref("status4evar.status.toolbar.maxLength", 0);
-
-pref("status4evar.status.urlbar.align", 0);
-pref("status4evar.status.urlbar.color", "GrayText");
-pref("status4evar.status.urlbar.position", 33);
 
 pref("status4evar.status.popup.invertMirror", false);
 pref("status4evar.status.popup.mouseMirror", true);

@@ -17,8 +17,8 @@ pref("browser.getdevtools.url","https://@APO_AM_URL@/external/devtools");
 
 // User Interface
 pref("browser.tabs.insertRelatedAfterCurrent", false); //use old method of tabbed browsing instead of "Chrome" style
-pref("browser.download.useDownloadDir", false); //don't use default download location as standard. ASK.
-pref("browser.search.context.loadInBackground", true); //don't swap focus to the context search tab.
+pref("browser.download.useDownloadDir", false); //don not use default download location as standard. ASK.
+pref("browser.search.context.loadInBackground", true); //don not swap focus to the context search tab.
 pref("browser.ctrlTab.previews", true);
 pref("browser.allTabs.previews", true);
 pref("browser.urlbar.trimURLs", false); //stop being a derp, Mozilla!
@@ -44,6 +44,7 @@ pref("app.update.auto", false);
 // Updates enabled
 pref("app.update.enabled", true);
 pref("app.update.url", "https://www.palemoon.org/update/%VERSION%/%BUILD_TARGET%/update.xml");
+pref("app.update.cert.checkAttributes", true);
 
 // Interval: Time between checks for a new version (in seconds) -- 2 days for Pale Moon
 pref("app.update.interval", 172800);
@@ -59,7 +60,8 @@ pref("app.update.url.details", "http://www.palemoon.org/releasenotes.shtml");
 #elif MOZ_BRANDING_DIRECTORY == BRANDING_DIRECTORY_UNSTABLE && defined(XP_WIN)
 // Updates enabled
 pref("app.update.enabled", true);
-pref("app.update.url", "http://www.palemoon.org/unstable/update.xml");
+pref("app.update.url", "https://www.palemoon.org/unstable/update.xml");
+pref("app.update.cert.checkAttributes", true);
 
 // Interval: Time between checks for a new version (in seconds) -- 6 hours for unstable
 pref("app.update.interval", 21600);
@@ -85,8 +87,7 @@ pref("app.update.download.backgroundInterval", 600);
 // Give the user x seconds to react before showing the big UI. default=48 hours
 pref("app.update.promptWaitTime", 172800);
 
-// Additional Update fixes - no SSL damnit, I don't have a cert (4.0)
-pref("app.update.cert.checkAttributes", false);
+// Additional Update fixes
 pref("app.update.cert.requireBuiltIn", false);
 
 // ============================================================================
@@ -143,8 +144,6 @@ pref("dom.ipc.plugins.timeoutSecs", 20);
 
 // ===| Graphics |=============================================================
 
-pref("gfx.color_management.mode",2); //Use CMS for images with ICC profile.
-pref("gfx.color_management.enablev4", true); //Use "new" handler to prevent display issues for v4 ICC embedded profiles!
 pref("nglayout.initialpaint.delay", 300);
 
 // ============================================================================

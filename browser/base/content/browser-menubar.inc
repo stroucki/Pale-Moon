@@ -84,6 +84,11 @@
                           type="checkbox"
                           observes="workOfflineMenuitemState"
                           oncommand="BrowserOffline.toggleOfflineStatus();"/>
+                <menuitem id="menu_restart"
+                          label="&appMenuRestart.label;"
+                          accesskey="&appMenuRestart.accesskey;"
+                          key="key_restartApplication"
+                          command="cmd_restartApplication"/>
                 <menuitem id="menu_FileQuitItem"
 #ifdef XP_WIN
                           label="&quitApplicationCmdWin.label;"

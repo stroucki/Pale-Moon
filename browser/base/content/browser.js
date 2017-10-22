@@ -4244,6 +4244,9 @@ nsBrowserAccess.prototype = {
         // Pass all params to openDialog to ensure that "url" isn't passed through
         // loadOneOrMoreURIs, which splits based on "|"
         newWindow = openDialog(getBrowserURL(), "_blank", "all,dialog=no", url, null, null, null);
+        // Focus the address bar if opened content in a new window is blank
+        if (newWindow.isBlankPageURL(url))
+          newWindow.focusAndSelectUrlBar();
         break;
       case Ci.nsIBrowserDOMWindow.OPEN_NEWTAB :
         let win, needToFocusWin;
@@ -6346,9 +6349,6 @@ var gIdentityHandler = {
     if (PopupNotifications.getNotification("mixed-content-blocked", gBrowser.selectedBrowser))
       return;
 
-    let helplink = document.getElementById("mixed-content-blocked-helplink");
-    helplink.href = Services.urlFormatter.formatURLPref("browser.mixedcontent.warning.infoURL");
-
     let brandBundle = document.getElementById("bundle_brand");
     let brandShortName = brandBundle.getString("brandShortName");
     let messageString = gNavigatorBundle.getFormattedString("mixedContentBlocked.message", [brandShortName]);
@@ -6369,6 +6369,7 @@ var gIdentityHandler = {
     ];
     let options = {
       dismissed: true,
+      learnMoreURL: Services.urlFormatter.formatURLPref("browser.mixedcontent.warning.infoURL"),
     };
     PopupNotifications.show(gBrowser.selectedBrowser, "mixed-content-blocked",
                             messageString, "mixed-content-blocked-notification-icon",
@@ -6839,21 +6840,38 @@ XPCOMUtils.defineLazyModuleGetter(this, "gDevToolsBrowser",
 Object.defineProperty(this, "HUDService", {
   get: function HUDService_getter() {
     let devtools = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools;
-    return devtools.require("devtools/webconsole/hudservice");
+    return devtools.require("devtools/webconsole/hudservice").HUDService;
   },
   configurable: true,
   enumerable: true
 });
 #endif
 
-// Prompt user to restart the browser in safe mode
-function safeModeRestart()
+// Prompt user to restart the browser in safe mode or normally
+function restart(safeMode)
 {
-  // prompt the user to confirm
-  let promptTitle = gNavigatorBundle.getString("safeModeRestartPromptTitle");
+  let promptTitleString = null;
+  let promptMessageString = null;
+  let restartTextString = null;
+  if (safeMode) {
+    promptTitleString = "safeModeRestartPromptTitle";
+    promptMessageString = "safeModeRestartPromptMessage";
+    restartTextString = "safeModeRestartButton";
+  } else {
+    promptTitleString = "restartPromptTitle";
+    promptMessageString = "restartPromptMessage";
+    restartTextString = "restartButton";
+  }
+
+  let flags = Ci.nsIAppStartup.eAttemptQuit;
+
+  // Prompt the user to confirm
+  let promptTitle = gNavigatorBundle.getString(promptTitleString);
+  let brandBundle = document.getElementById("bundle_brand");
+  let brandShortName = brandBundle.getString("brandShortName");
   let promptMessage =
-    gNavigatorBundle.getString("safeModeRestartPromptMessage");
-  let restartText = gNavigatorBundle.getString("safeModeRestartButton");
+    gNavigatorBundle.getFormattedString(promptMessageString, [brandShortName]);
+  let restartText = gNavigatorBundle.getString(restartTextString);
   let buttonFlags = (Services.prompt.BUTTON_POS_0 *
                      Services.prompt.BUTTON_TITLE_IS_STRING) +
                     (Services.prompt.BUTTON_POS_1 *
@@ -6863,8 +6881,23 @@ function safeModeRestart()
   let rv = Services.prompt.confirmEx(window, promptTitle, promptMessage,
                                      buttonFlags, restartText, null, null,
                                      null, {});
+
   if (rv == 0) {
-    Services.startup.restartInSafeMode(Ci.nsIAppStartup.eAttemptQuit);
+    // Notify all windows that an application quit has been requested.
+    let cancelQuit = Components.classes["@mozilla.org/supports-PRBool;1"]
+                     .createInstance(Ci.nsISupportsPRBool);
+    Services.obs.notifyObservers(cancelQuit, "quit-application-requested", "restart");
+
+    // Something aborted the quit process.
+    if (cancelQuit.data) {
+      return;
+    }
+
+    if (safeMode) {    
+      Services.startup.restartInSafeMode(flags);
+    } else {
+      Services.startup.quit(flags | Ci.nsIAppStartup.eRestart);
+    }
   }
 }
 

@@ -334,7 +334,6 @@ These should match what Safari and other Apple applications use on OS X Lion. --
 <!ENTITY appMenuWebDeveloper.label "Web Developer">
 <!ENTITY appMenuGettingStarted.label "Getting Started">
 <!ENTITY appMenuSafeMode.label "Restart with Add-ons Disabled…">
-<!ENTITY appMenuSafeMode.accesskey "R">
 
 <!ENTITY openCmd.commandkey           "l">
 <!ENTITY urlbar.placeholder2          "Search or enter address">
@@ -549,6 +548,10 @@ you can use these alternative items. Otherwise, their values should be empty.  -
 <!ENTITY zoomInButton.tooltip           "Zoom in">
 <!ENTITY zoomControls.label             "Zoom Controls">
 
+<!ENTITY appMenuRestart.label           "Restart">
+<!ENTITY appMenuRestart.accesskey       "R">
+<!ENTITY appMenuRestartCmd.commandkey   "R">
+
 <!ENTITY quitApplicationCmdWin.label       "Exit"> 
 <!ENTITY quitApplicationCmdWin.accesskey   "x">
 <!ENTITY goBackCmd.commandKey "[">
@@ -646,7 +649,6 @@ just addresses the organization to follow, e.g. "This site is run by " -->
 <!ENTITY webrtcIndicatorButton.label "Camera / Microphone Access">
 <!ENTITY webrtcIndicatorButton.tooltip "Display sites you are currently sharing your camera or microphone with">
 
-<!ENTITY mixedContentBlocked.helplink "Learn more">
 <!ENTITY mixedContentBlocked.moreinfo "Most websites will still work properly even when this content is blocked.">
 
 <!ENTITY pointerLock.notification.message "Press ESC at any time to show it again.">
