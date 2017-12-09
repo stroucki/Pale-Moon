@@ -78,6 +78,7 @@ namespace jit {
     _(JSOP_MUL)                \
     _(JSOP_DIV)                \
     _(JSOP_MOD)                \
+    _(JSOP_POW)                \
     _(JSOP_LT)                 \
     _(JSOP_LE)                 \
     _(JSOP_GT)                 \
@@ -169,6 +170,7 @@ namespace jit {
     _(JSOP_RETSUB)             \
     _(JSOP_PUSHBLOCKSCOPE)     \
     _(JSOP_POPBLOCKSCOPE)      \
+    _(JSOP_FRESHENBLOCKSCOPE)  \
     _(JSOP_DEBUGLEAVEBLOCK)    \
     _(JSOP_EXCEPTION)          \
     _(JSOP_DEBUGGER)           \

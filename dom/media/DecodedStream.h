@@ -8,17 +8,20 @@
 #define DecodedStream_h_
 
 #include "nsRefPtr.h"
+#include "nsTArray.h"
+#include "mozilla/UniquePtr.h"
 #include "mozilla/gfx/Point.h"
 
 namespace mozilla {
 
-class MediaDecoder;
 class MediaInputPort;
 class SourceMediaStream;
 class ProcessedMediaStream;
+class DecodedStream;
 class DecodedStreamGraphListener;
-class OutputStreamData;
 class OutputStreamListener;
+class ReentrantMonitor;
+class MediaStreamGraph;
 
 namespace layers {
 class Image;
@@ -34,8 +37,7 @@ class Image;
  */
 class DecodedStreamData {
 public:
-  DecodedStreamData(MediaDecoder* aDecoder, int64_t aInitialTime,
-                    SourceMediaStream* aStream);
+  DecodedStreamData(int64_t aInitialTime, SourceMediaStream* aStream);
   ~DecodedStreamData();
   bool IsFinished() const;
   int64_t GetClock() const;
@@ -53,7 +55,6 @@ public:
   // to the output stream.
   int64_t mNextVideoTime; // microseconds
   int64_t mNextAudioTime; // microseconds
-  MediaDecoder* mDecoder;
   // The last video image sent to the stream. Useful if we need to replicate
   // the image.
   nsRefPtr<layers::Image> mLastVideoImage;
@@ -78,17 +79,30 @@ public:
 
 class OutputStreamData {
 public:
-  // Compiler-generated default constructor needs the complete definition
-  // of OutputStreamListener when constructing OutputStreamData. Provide our
-  // own default constructor for forward declaration of OutputStreamListener
-  // to work.
-  OutputStreamData();
   ~OutputStreamData();
-  void Init(MediaDecoder* aDecoder, ProcessedMediaStream* aStream);
+  void Init(DecodedStream* aDecodedStream, ProcessedMediaStream* aStream);
   nsRefPtr<ProcessedMediaStream> mStream;
   // mPort connects DecodedStreamData::mStream to our mStream.
   nsRefPtr<MediaInputPort> mPort;
   nsRefPtr<OutputStreamListener> mListener;
+};
+
+class DecodedStream {
+public:
+	explicit DecodedStream(ReentrantMonitor& aMonitor);
+  DecodedStreamData* GetData() const;
+  void DestroyData();
+  void RecreateData(int64_t aInitialTime, MediaStreamGraph* aGraph);
+  nsTArray<OutputStreamData>& OutputStreams();
+  ReentrantMonitor& GetReentrantMonitor() const;
+  void Connect(ProcessedMediaStream* aStream, bool aFinishWhenEnded);
+
+private:
+  void Connect(OutputStreamData* aStream);
+  UniquePtr<DecodedStreamData> mData;
+  // Data about MediaStreams that are being fed by the decoder.
+  nsTArray<OutputStreamData> mOutputStreams;
+  ReentrantMonitor& mMonitor;
 };
 
 } // namespace mozilla

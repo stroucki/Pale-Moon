@@ -232,10 +232,16 @@ var gPrivacyPane = {
           .forEach(function (aElement)
                    document.getElementById(aElement).disabled = disabled);
 
+      const Ci = Components.interfaces;
       // adjust the cookie controls status
       this.readAcceptCookies();
-      document.getElementById("keepCookiesUntil").value = disabled ? 2 :
-        document.getElementById("network.cookie.lifetimePolicy").value;
+      let lifetimePolicy = document.getElementById("network.cookie.lifetimePolicy").value;
+      if (lifetimePolicy != Ci.nsICookieService.ACCEPT_NORMALLY &&
+          lifetimePolicy != Ci.nsICookieService.ACCEPT_SESSION &&
+          lifetimePolicy != Ci.nsICookieService.ACCEPT_FOR_N_DAYS) {
+        lifetimePolicy = Ci.nsICookieService.ACCEPT_NORMALLY;
+      }
+      document.getElementById("keepCookiesUntil").value = disabled ? 2 : lifetimePolicy;
 
       // adjust the checked state of the sanitizeOnShutdown checkbox
       document.getElementById("alwaysClear").checked = disabled ? false :
@@ -383,7 +389,6 @@ var gPrivacyPane = {
    * network.cookie.lifetimePolicy
    * - determines how long cookies are stored:
    *     0   means keep cookies until they expire
-   *     1   means ask how long to keep each cookie
    *     2   means keep cookies until the browser is closed
    */
 

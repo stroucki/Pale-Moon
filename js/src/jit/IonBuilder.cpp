@@ -1944,6 +1944,17 @@ IonBuilder::inspectOpcode(JSOp op)
       case JSOP_DEBUGGER:
         return jsop_debugger();
 
+#ifdef DEBUG
+      case JSOP_PUSHBLOCKSCOPE:
+      case JSOP_FRESHENBLOCKSCOPE:
+      case JSOP_POPBLOCKSCOPE:
+        // These opcodes are currently unhandled by Ion, but in principle
+        // there's no reason they couldn't be.  Whenever this happens, OSR will
+        // have to consider that JSOP_FRESHENBLOCK mutates the scope chain --
+        // right now it caches the scope chain in MBasicBlock::scopeChain().
+        // That stale value will have to be updated when JSOP_FRESHENBLOCK is
+        // encountered.
+#endif
       default:
         // Track a simpler message, since the actionable abort message is a
         // static string, and the internal opcode name isn't an actionable
@@ -3087,6 +3098,7 @@ IonBuilder::forLoop(JSOp op, jssrcnote* sn)
     // body:
     //    ; [body]
     // [increment:]
+    //   [FRESHENBLOCKSCOPE, if needed by a cloned block]
     //    ; [increment]
     // [cond:]
     //   LOOPENTRY
@@ -3094,6 +3106,10 @@ IonBuilder::forLoop(JSOp op, jssrcnote* sn)
     //
     // If there is a condition (condpc != ifne), this acts similar to a while
     // loop otherwise, it acts like a do-while loop.
+    //
+    // Note that currently Ion does not compile pushblockscope/popblockscope as
+    // necessary prerequisites to freshenblockscope.  So the code below doesn't
+    // and needn't consider the implications of freshenblockscope.
     jsbytecode* bodyStart = pc;
     jsbytecode* bodyEnd = updatepc;
     jsbytecode* loopEntry = condpc;
@@ -7608,9 +7624,6 @@ IonBuilder::getElemTryTypedObject(bool* emitted, MDefinition* obj, MDefinition* 
     MOZ_CRASH("Bad kind");
 }
 
-static MIRType
-MIRTypeForTypedArrayRead(Scalar::Type arrayType, bool observedDouble);
-
 bool
 IonBuilder::checkTypedObjectIndexInBounds(int32_t elemSize,
                                           MDefinition* obj,
@@ -8410,29 +8423,6 @@ IonBuilder::convertShiftToMaskForStaticTypedArray(MDefinition* id,
     current->add(ptr);
 
     return ptr;
-}
-
-static MIRType
-MIRTypeForTypedArrayRead(Scalar::Type arrayType, bool observedDouble)
-{
-    switch (arrayType) {
-      case Scalar::Int8:
-      case Scalar::Uint8:
-      case Scalar::Uint8Clamped:
-      case Scalar::Int16:
-      case Scalar::Uint16:
-      case Scalar::Int32:
-        return MIRType_Int32;
-      case Scalar::Uint32:
-        return observedDouble ? MIRType_Double : MIRType_Int32;
-      case Scalar::Float32:
-        return MIRType_Float32;
-      case Scalar::Float64:
-        return MIRType_Double;
-      default:
-        break;
-    }
-    MOZ_CRASH("Unknown typed array type");
 }
 
 bool

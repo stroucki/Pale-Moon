@@ -3441,18 +3441,30 @@ nsContentUtils::IsChildOfSameType(nsIDocument* aDoc)
   return sameTypeParent != nullptr;
 }
 
-bool
-nsContentUtils::IsPlainTextType(const nsACString& aContentType)
+bool 
+nsContentUtils::IsScriptType(const nsACString& aContentType)
 {
-  return aContentType.EqualsLiteral(TEXT_PLAIN) ||
-         aContentType.EqualsLiteral(TEXT_CSS) ||
-         aContentType.EqualsLiteral(TEXT_CACHE_MANIFEST) ||
-         aContentType.EqualsLiteral(APPLICATION_JAVASCRIPT) ||
+  // NOTE: if you add a type here, add it to the CONTENTDLF_CATEGORIES
+  // define in nsContentDLF.h as well. 
+  return aContentType.EqualsLiteral(APPLICATION_JAVASCRIPT) ||
          aContentType.EqualsLiteral(APPLICATION_XJAVASCRIPT) ||
          aContentType.EqualsLiteral(TEXT_ECMASCRIPT) ||
          aContentType.EqualsLiteral(APPLICATION_ECMASCRIPT) ||
          aContentType.EqualsLiteral(TEXT_JAVASCRIPT) ||
-         aContentType.EqualsLiteral(APPLICATION_JSON);
+         aContentType.EqualsLiteral(APPLICATION_JSON) ||
+         aContentType.EqualsLiteral(TEXT_JSON);
+}
+
+bool
+nsContentUtils::IsPlainTextType(const nsACString& aContentType)
+{
+  // NOTE: if you add a type here, add it to the CONTENTDLF_CATEGORIES
+  // define in nsContentDLF.h as well.
+  return aContentType.EqualsLiteral(TEXT_PLAIN) ||
+         aContentType.EqualsLiteral(TEXT_CSS) ||
+         aContentType.EqualsLiteral(TEXT_CACHE_MANIFEST) ||
+         aContentType.EqualsLiteral(TEXT_VTT) ||
+         IsScriptType(aContentType);
 }
 
 bool
@@ -6463,7 +6475,7 @@ nsContentUtils::AllowXULXBLForPrincipal(nsIPrincipal* aPrincipal)
 }
 
 already_AddRefed<nsIDocumentLoaderFactory>
-nsContentUtils::FindInternalContentViewer(const char* aType,
+nsContentUtils::FindInternalContentViewer(const nsACString& aType,
                                           ContentViewerType* aLoaderType)
 {
   if (aLoaderType) {
@@ -6478,7 +6490,9 @@ nsContentUtils::FindInternalContentViewer(const char* aType,
   nsCOMPtr<nsIDocumentLoaderFactory> docFactory;
 
   nsXPIDLCString contractID;
-  nsresult rv = catMan->GetCategoryEntry("Goanna-Content-Viewers", aType, getter_Copies(contractID));
+  nsresult rv = catMan->GetCategoryEntry("Goanna-Content-Viewers",
+                                         PromiseFlatCString(aType).get(),
+                                         getter_Copies(contractID));
   if (NS_SUCCEEDED(rv)) {
     docFactory = do_GetService(contractID);
     if (docFactory && aLoaderType) {
@@ -6492,7 +6506,7 @@ nsContentUtils::FindInternalContentViewer(const char* aType,
     return docFactory.forget();
   }
 
-  if (DecoderTraits::IsSupportedInVideoDocument(nsDependentCString(aType))) {
+  if (DecoderTraits::IsSupportedInVideoDocument(aType)) {
     docFactory = do_GetService("@mozilla.org/content/document-loader-factory;1");
     if (docFactory && aLoaderType) {
       *aLoaderType = TYPE_CONTENT;

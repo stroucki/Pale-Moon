@@ -9,3 +9,7 @@ pref("startup.homepage_override_url","about:blank");
 // XXXstroucki advertising
 // serves an ad
 pref("app.releaseNotesURL", "about:blank");
+
+// Updates disabled
+pref("app.update.enabled", false);
+pref("app.update.url", "");

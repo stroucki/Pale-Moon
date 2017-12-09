@@ -391,41 +391,6 @@ public:
   // replaying after the input as ended. In the latter case, the new source is
   // not connected to streams created by captureStreamUntilEnded.
 
-  /**
-   * Connects mDecodedStream->mStream to aStream->mStream.
-   */
-  void ConnectDecodedStreamToOutputStream(OutputStreamData* aStream);
-
-  void UpdateDecodedStream();
-
-  /**
-   * Disconnects mDecodedStream->mStream from all outputs and clears
-   * mDecodedStream.
-   */
-  void DestroyDecodedStream();
-  /**
-   * Recreates mDecodedStream. Call this to create mDecodedStream at first,
-   * and when seeking, to ensure a new stream is set up with fresh buffers.
-   * aStartTimeUSecs is relative to the state machine's mStartTime.
-   * Decoder monitor must be held.
-   */
-  void RecreateDecodedStream(int64_t aStartTimeUSecs);
-  /**
-   * Call this when mDecoderStateMachine or mDecoderStateMachine->IsPlaying() changes.
-   * Decoder monitor must be held.
-   */
-  void UpdateStreamBlockingForStateMachinePlaying();
-  nsTArray<OutputStreamData>& OutputStreams()
-  {
-    GetReentrantMonitor().AssertCurrentThreadIn();
-    return mOutputStreams;
-  }
-  DecodedStreamData* GetDecodedStream()
-  {
-    GetReentrantMonitor().AssertCurrentThreadIn();
-    return mDecodedStream;
-  }
-
   // Add an output stream. All decoder output will be sent to the stream.
   // The stream is initially blocked. The decoder is responsible for unblocking
   // it while it is playing back.
@@ -616,7 +581,7 @@ public:
 
   // Returns true if we can play the entire media through without stopping
   // to buffer, given the current download and playback rates.
-  bool CanPlayThrough();
+  virtual bool CanPlayThrough();
 
   void SetAudioChannel(dom::AudioChannel aChannel) { mAudioChannel = aChannel; }
   dom::AudioChannel GetAudioChannel() { return mAudioChannel; }
@@ -892,6 +857,7 @@ public:
   }
 
   virtual MediaDecoderOwner::NextFrameStatus NextFrameStatus() { return mNextFrameStatus; }
+  virtual MediaDecoderOwner::NextFrameStatus NextFrameBufferedStatus();
 
 protected:
   virtual ~MediaDecoder();
@@ -982,6 +948,11 @@ protected:
   // Media data resource.
   nsRefPtr<MediaResource> mResource;
 
+	// Amount of buffered data ahead of current time required to consider that
+  // the next frame is available.
+  // An arbitrary value of 250ms is used.
+  static const int DEFAULT_NEXT_FRAME_AVAILABLE_BUFFERED = 250000;
+
 private:
   // The state machine object for handling the decoding. It is safe to
   // call methods of this object from other threads. Its internal data
@@ -998,15 +969,6 @@ private:
   ReentrantMonitor mReentrantMonitor;
 
 protected:
-  // Data about MediaStreams that are being fed by this decoder.
-  nsTArray<OutputStreamData> mOutputStreams;
-  // The SourceMediaStream we are using to feed the mOutputStreams. This stream
-  // is never exposed outside the decoder.
-  // Only written on the main thread while holding the monitor. Therefore it
-  // can be read on any thread while holding the monitor, or on the main thread
-  // without holding the monitor.
-  nsAutoPtr<DecodedStreamData> mDecodedStream;
-
   // Media duration according to the demuxer's current estimate.
   //
   // Note that it's quite bizarre for this to live on the main thread - it would

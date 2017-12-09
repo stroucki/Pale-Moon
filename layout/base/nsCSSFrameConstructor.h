@@ -571,6 +571,7 @@ private:
      @param nsStyleContext the style context to use for the frame. */
   typedef nsIFrame* (* FrameCreationFunc)(nsIPresShell*, nsStyleContext*);
   typedef nsContainerFrame* (* ContainerFrameCreationFunc)(nsIPresShell*, nsStyleContext*);
+  typedef nsBlockFrame* (* BlockFrameCreationFunc)(nsIPresShell*, nsStyleContext*);
 
   /* A function that can be used to get a FrameConstructionData.  Such
      a function is allowed to return null.
@@ -847,6 +848,27 @@ private:
                                   aSuppressWhiteSpaceOptimizations,
                                   aAnonChildren);
       PR_APPEND_LINK(item, &mItems);
+      ++mItemCount;
+      ++mDesiredParentCounts[item->DesiredParentType()];
+      return item;
+    }
+
+    // Arguments are the same as AppendItem().
+    FrameConstructionItem* PrependItem(const FrameConstructionData* aFCData,
+                                       nsIContent* aContent,
+                                       nsIAtom* aTag,
+                                       int32_t aNameSpaceID,
+                                       PendingBinding* aPendingBinding,
+                                       already_AddRefed<nsStyleContext>&& aStyleContext,
+                                       bool aSuppressWhiteSpaceOptimizations,
+                                       nsTArray<nsIAnonymousContentCreator::ContentInfo>* aAnonChildren)
+    {
+      FrameConstructionItem* item =
+        new FrameConstructionItem(aFCData, aContent, aTag, aNameSpaceID,
+                                  aPendingBinding, aStyleContext,
+                                  aSuppressWhiteSpaceOptimizations,
+                                  aAnonChildren);
+      PR_INSERT_LINK(item, &mItems);
       ++mItemCount;
       ++mDesiredParentCounts[item->DesiredParentType()];
       return item;
@@ -1537,6 +1559,18 @@ private:
                                      nsFrameItems&            aFrameItems);
 
   /**
+   * Construct a scrollable block frame using the given block frame creation
+   * function.
+   */
+  nsIFrame* ConstructScrollableBlockWithConstructor(
+    nsFrameConstructorState& aState,
+    FrameConstructionItem& aItem,
+    nsContainerFrame* aParentFrame,
+    const nsStyleDisplay* aDisplay,
+    nsFrameItems& aFrameItems,
+    BlockFrameCreationFunc aConstructor);
+
+  /**
    * Construct a non-scrollable block frame
    */
   nsIFrame* ConstructNonScrollableBlock(nsFrameConstructorState& aState,
@@ -1544,6 +1578,18 @@ private:
                                         nsContainerFrame*        aParentFrame,
                                         const nsStyleDisplay*    aDisplay,
                                         nsFrameItems&            aFrameItems);
+
+  /**
+   * Construct a non-scrollable block frame using the given block frame creation
+   * function.
+   */
+  nsIFrame* ConstructNonScrollableBlockWithConstructor(
+    nsFrameConstructorState& aState,
+    FrameConstructionItem& aItem,
+    nsContainerFrame* aParentFrame,
+    const nsStyleDisplay* aDisplay,
+    nsFrameItems& aFrameItems,
+    BlockFrameCreationFunc aConstructor);
 
   /**
    * This adds FrameConstructionItem objects to aItemsToConstruct for the

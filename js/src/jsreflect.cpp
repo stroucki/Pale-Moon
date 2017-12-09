@@ -41,6 +41,7 @@ char const * const js::aopNames[] = {
     "*=",   /* AOP_STAR */
     "/=",   /* AOP_DIV */
     "%=",   /* AOP_MOD */
+    "**=",  /* AOP_POW */
     "<<=",  /* AOP_LSH */
     ">>=",  /* AOP_RSH */
     ">>>=", /* AOP_URSH */
@@ -66,6 +67,7 @@ char const * const js::binopNames[] = {
     "*",          /* BINOP_STAR */
     "/",          /* BINOP_DIV */
     "%",          /* BINOP_MOD */
+    "**",         /* BINOP_POW */
     "|",          /* BINOP_BITOR */
     "^",          /* BINOP_BITXOR */
     "&",          /* BINOP_BITAND */
@@ -1719,6 +1721,7 @@ class ASTSerializer
     bool statements(ParseNode* pn, NodeVector& elts);
     bool expressions(ParseNode* pn, NodeVector& elts);
     bool leftAssociate(ParseNode* pn, MutableHandleValue dst);
+    bool rightAssociate(ParseNode* pn, MutableHandleValue dst);
     bool functionArgs(ParseNode* pn, ParseNode* pnargs, ParseNode* pndestruct, ParseNode* pnbody,
                       NodeVector& args, NodeVector& defaults, MutableHandleValue rest);
 
@@ -1832,6 +1835,8 @@ ASTSerializer::aop(JSOp op)
         return AOP_DIV;
       case JSOP_MOD:
         return AOP_MOD;
+      case JSOP_POW:
+        return AOP_POW;
       case JSOP_LSH:
         return AOP_LSH;
       case JSOP_RSH:
@@ -1910,6 +1915,8 @@ ASTSerializer::binop(ParseNodeKind kind, JSOp op)
         return BINOP_DIV;
       case PNK_MOD:
         return BINOP_MOD;
+      case PNK_POW:
+        return BINOP_POW;
       case PNK_BITOR:
         return BINOP_BITOR;
       case PNK_BITXOR:
@@ -2464,7 +2471,12 @@ ASTSerializer::statement(ParseNode* pn, MutableHandleValue dst)
 
         RootedValue init(cx), test(cx), update(cx);
 
-        return forInit(head->pn_kid1, &init) &&
+        // Init with nullptr in case of a freshen block (for(let x;;)),
+        // disconnecting chain inheritance.
+        return forInit(head->pn_kid1 && !head->pn_kid1->isKind(PNK_FRESHENBLOCK)
+                       ? head->pn_kid1
+                       : nullptr,
+                       &init) &&
                optExpression(head->pn_kid2, &test) &&
                optExpression(head->pn_kid3, &update) &&
                builder.forStatement(init, test, update, stmt, &pn->pn_pos, dst);
@@ -2579,6 +2591,50 @@ ASTSerializer::leftAssociate(ParseNode* pn, MutableHandleValue dst)
     }
 
     dst.set(left);
+    return true;
+}
+
+bool
+ASTSerializer::rightAssociate(ParseNode* pn, MutableHandleValue dst)
+{
+    MOZ_ASSERT(pn->isArity(PN_LIST));
+    MOZ_ASSERT(pn->pn_count >= 1);
+
+    // First, we need to reverse the list, so that we can traverse it in the correct order.
+    // It's OK to destructively reverse the list, because there are no other consumers.
+
+    ParseNode* head = pn->pn_head;
+    ParseNode* prev = nullptr;
+    ParseNode* current = head;
+    ParseNode* next;
+    while (current != nullptr)
+    {
+        next = current->pn_next;  
+        current->pn_next = prev;   
+        prev = current;
+        current = next;
+    }
+
+    head = prev;
+
+    RootedValue right(cx);
+    if (!expression(head, &right))
+        return false;
+    for (ParseNode* next = head->pn_next; next; next = next->pn_next) {
+        RootedValue left(cx);
+        if (!expression(next, &left))
+            return false;
+
+        TokenPos subpos(pn->pn_pos.begin, next->pn_pos.end);
+
+        BinaryOperator op = binop(pn->getKind(), pn->getOp());
+        LOCAL_ASSERT(op > BINOP_ERR && op < BINOP_LIMIT);
+
+        if (!builder.binaryExpression(op, left, right, &subpos, &right))
+            return false;
+    }
+
+    dst.set(right);
     return true;
 }
 
@@ -2770,6 +2826,7 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
       case PNK_MULASSIGN:
       case PNK_DIVASSIGN:
       case PNK_MODASSIGN:
+      case PNK_POWASSIGN:
       {
         MOZ_ASSERT(pn->pn_pos.encloses(pn->pn_left->pn_pos));
         MOZ_ASSERT(pn->pn_pos.encloses(pn->pn_right->pn_pos));
@@ -2805,6 +2862,9 @@ ASTSerializer::expression(ParseNode* pn, MutableHandleValue dst)
       case PNK_IN:
       case PNK_INSTANCEOF:
         return leftAssociate(pn, dst);
+
+      case PNK_POW:
+        return rightAssociate(pn, dst);
 
       case PNK_DELETE:
       case PNK_TYPEOF:
