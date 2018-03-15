@@ -42,3 +42,14 @@ again? I've included my .mozconfig. mach build to start the build process.
  * [Build Pale Moon for Linux](https://developer.palemoon.org/Developer_Guide:Build_Instructions/Pale_Moon/Linux)
  * [Pale Moon home page](http://www.palemoon.org/)
  * [Code contribution guidelines](https://github.com/MoonchildProductions/Pale-Moon/wiki/Code-contribution-guidelines) - PLEASE read this if you wish to get involved in our development.
+
+## Notes
+A significant memory leak was observed with the 20171220 version that was not
+seen before. swapfiles would fill up by the gig like this:
+```
+2858fff0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 0a  |................|
+28590000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+28590ff0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 0a  |................|
+28591000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+```
