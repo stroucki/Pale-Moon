@@ -485,8 +485,6 @@ gfxWindowsPlatform::UpdateRenderMode()
 
     mRenderMode = RENDER_GDI;
 
-    bool isVistaOrHigher = IsVistaOrLater();
-
     bool safeMode = false;
     nsCOMPtr<nsIXULRuntime> xr = do_GetService("@mozilla.org/xre/runtime;1");
     if (xr)
@@ -528,8 +526,7 @@ gfxWindowsPlatform::UpdateRenderMode()
     }
 
     ID3D11Device *device = GetD3D11Device();
-    if (isVistaOrHigher && !safeMode && tryD2D &&
-        device &&
+    if (!safeMode && tryD2D && device &&
         device->GetFeatureLevel() >= D3D_FEATURE_LEVEL_10_0 &&
         DoesD3D11TextureSharingWork(device)) {
 
@@ -544,9 +541,8 @@ gfxWindowsPlatform::UpdateRenderMode()
 #endif
 
 #ifdef CAIRO_HAS_DWRITE_FONT
-    // Enable when it's preffed on -and- we're using Vista or higher. Or when
-    // we're going to use D2D.
-    if (!mDWriteFactory && (mUseDirectWrite && isVistaOrHigher)) {
+    // Enable when it's preffed on or when we're going to use D2D.
+    if (!mDWriteFactory && mUseDirectWrite) {
         decltype(DWriteCreateFactory)* createDWriteFactory = (decltype(DWriteCreateFactory)*)
             GetProcAddress(LoadLibraryW(L"dwrite.dll"), "DWriteCreateFactory");
 
@@ -867,6 +863,7 @@ static const char kFontSegoeUIEmoji[] = "Segoe UI Emoji";
 static const char kFontSegoeUISymbol[] = "Segoe UI Symbol";
 static const char kFontSylfaen[] = "Sylfaen";
 static const char kFontTraditionalArabic[] = "Traditional Arabic";
+static const char kFontTwemojiMozilla[] = "Twemoji Mozilla";
 static const char kFontUtsaah[] = "Utsaah";
 static const char kFontYuGothic[] = "Yu Gothic";
 
@@ -877,6 +874,7 @@ gfxWindowsPlatform::GetCommonFallbackFonts(uint32_t aCh, uint32_t aNextCh,
 {
     if (aNextCh == 0xfe0fu) {
         aFontList.AppendElement(kFontSegoeUIEmoji);
+        aFontList.AppendElement(kFontTwemojiMozilla);
     }
 
     // Arial is used as the default fallback for system fallback
@@ -888,9 +886,11 @@ gfxWindowsPlatform::GetCommonFallbackFonts(uint32_t aCh, uint32_t aNextCh,
             if (aNextCh == 0xfe0eu) {
                 aFontList.AppendElement(kFontSegoeUISymbol);
                 aFontList.AppendElement(kFontSegoeUIEmoji);
+                aFontList.AppendElement(kFontTwemojiMozilla);
             } else {
                 if (aNextCh != 0xfe0fu) {
                     aFontList.AppendElement(kFontSegoeUIEmoji);
+                    aFontList.AppendElement(kFontTwemojiMozilla);
                 }
                 aFontList.AppendElement(kFontSegoeUISymbol);
             }
