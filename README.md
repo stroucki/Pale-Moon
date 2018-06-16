@@ -35,6 +35,12 @@ To build on the Mac, I only needed autoconf-2.13 and yaml. It builds in
 only 10 minutes. Why did we professionals stop building our own software 
 again? I've included my .mozconfig. mach build to start the build process.
 
+## Maintenance mode
+
+This repository and incarnation of Pale Moon is currently in maintenance mode and will only receive critical and security updates.
+The new home for Pale Moon (v28+) is in the UXP platform repo where it is one of the included applications with the platform.
+** Do NOT open new feature/bug issues on this repo, please, unless it is a sec or critical issue, and check if the Pale Moon unstable channel solves any issues you may have before opening new issues on the UXP repo.
+
 ## Resources
 
  * [Mozilla Source Code Directory Structure and links to project pages](https://developer.mozilla.org/en/Mozilla_Source_Code_Directory_Structure)
@@ -42,14 +48,3 @@ again? I've included my .mozconfig. mach build to start the build process.
  * [Build Pale Moon for Linux](https://developer.palemoon.org/Developer_Guide:Build_Instructions/Pale_Moon/Linux)
  * [Pale Moon home page](http://www.palemoon.org/)
  * [Code contribution guidelines](https://github.com/MoonchildProductions/Pale-Moon/wiki/Code-contribution-guidelines) - PLEASE read this if you wish to get involved in our development.
-
-## Notes
-A significant memory leak was observed with the 20171220 version that was not
-seen before. swapfiles would fill up by the gig like this:
-```
-2858fff0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 0a  |................|
-28590000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-*
-28590ff0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 0a  |................|
-28591000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-```
