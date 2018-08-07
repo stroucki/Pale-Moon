@@ -9,6 +9,9 @@ mostly laid out like Mozilla-based products.
 My intents are among others to compile Pale Moon for the Mac and to 
 frustrate access to information that is not obviously the concern of a 
 web browser. I also take a hostile position with respect to advertisements.
+Upstream has decided to abandon this version of PaleMoon, choosing to
+use an Australis version of Firefox in the future. I haven't decided
+yet to break the Github link to upstream.
 
 Blocked APIs:
 
