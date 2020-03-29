@@ -5067,7 +5067,11 @@ nsDocShell::DisplayLoadError(nsresult aError, nsIURI* aURI,
         // never want to show the "Add Exception" button for these sites.
         // In the future we should differentiate between an HSTS host and a
         // pinned host and display a more informative message to the user.
-        if (isStsHost || isPinnedHost) {
+        // XXXstroucki: it is my browser and I do want to be able to make
+        // an exception to cert issues, as long as I am still talking
+        // encrypted.
+        //if (isStsHost || isPinnedHost) {
+        if (isPinnedHost) {
           cssClass.AssignLiteral("badStsCert");
         }
 
