@@ -18,6 +18,11 @@ Blocked calls:
 
 canvas.toDataUrl
 
+Blocked DOM attributes:
+
+HTMLAnchorTag ping
+HTMLAreaTag ping
+
 Other:
 
 The default User Agent is set to the empty string, which leads to the 

@@ -240,13 +240,15 @@ HTMLAreaElement::ToString(nsAString& aSource)
 NS_IMETHODIMP    
 HTMLAreaElement::GetPing(nsAString& aValue)
 {
-  return GetURIListAttr(nsGkAtoms::ping, aValue);
+  //return GetURIListAttr(nsGkAtoms::ping, aValue);
+  return NS_ERROR_OUT_OF_MEMORY;
 }
 
 NS_IMETHODIMP
 HTMLAreaElement::SetPing(const nsAString& aValue)
 {
-  return SetAttr(kNameSpaceID_None, nsGkAtoms::ping, aValue, true);
+  //return SetAttr(kNameSpaceID_None, nsGkAtoms::ping, aValue, true);
+  return NS_ERROR_OUT_OF_MEMORY;
 }
 
 already_AddRefed<nsIURI>
