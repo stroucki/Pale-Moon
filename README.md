@@ -4,11 +4,26 @@ This is the source code for the Pale Moon web browser, an independent
 browser derived from Firefox/Mozilla community code. The source tree is
 mostly laid out like Mozilla-based products.
 
+The upstream project seems beset with "personality". They drop Mac
+support. Then they bring it back (Thanks dbsoft@github!). Classic
+extensions are thrown out. Then they are back. They have their Trotsky who
+was apparently running things, and then rage quit, burning down the farm
+behind him.
+
+But it has been my personally trusted browser since 2017. My initial
+attempt at interaction with upstream (a pull request to disable the
+BatteryManager API) resulted in dismissal and a threat (from Tobin? The
+origin repos have been removed from Github, so I would have to search my
+email archives). Moonchild finally saw the light and removed it in 2020. I
+don't remember if I also submitted my patch to remove canvas.toDataURL,
+but a month later Moonchild added an option to poison the data.
+
 # My mods
 
 My intents are among others to compile Pale Moon for the Mac and to 
-frustrate access to information that is not obviously the concern of a 
-web browser. I also take a hostile position with respect to advertisements.
+frustrate access to information that is not obviously the concern of a web 
+browser. I also take a hostile position with respect to advertisements.
+
 
 Blocked APIs:
 
@@ -36,7 +51,7 @@ industry. If a site rejects the browser because it tries to protect the
 user, the user needs to decide whether he actually wants to visit the 
 site, or to use special protective measures.
 
-To build on the Mac, I only needed autoconf-2.13 and yaml. It builds in 
+To build on the Mac, I only needed autoconf-2.13 and yasm. It builds in 
 only 10 minutes. Why did we professionals stop building our own software 
 again? I've included my .mozconfig. mach build to start the build process.
 
