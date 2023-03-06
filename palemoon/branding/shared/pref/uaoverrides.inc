@@ -1,4 +1,5 @@
 // ===| Site Specific User Agent Overrides |===================================
+// XXXstroucki user agent
 
 #define GUAO_PREF general.useragent.override
 
