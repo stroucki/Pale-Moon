@@ -1,6 +1,9 @@
 // ===| General |==============================================================
 
-pref("startup.homepage_welcome_url","https://www.palemoon.org/firstrun.shtml");
+// XXXstroucki advertising
+// used to show an ad
+//pref("startup.homepage_welcome_url","http://www.palemoon.org/firstrun.shtml");
+pref("startup.homepage_welcome_url","about:blank");
 
 pref("app.vendorURL", "https://www.palemoon.org/");
 
