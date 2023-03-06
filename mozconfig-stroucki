@@ -1,0 +1,30 @@
+#mk_add_options MOZ_CO_PROJECT=browser
+ac_add_options --enable-application=palemoon
+ 
+mk_add_options MOZ_OBJDIR=/tmp/pm/pmbuild2/
+ 
+ac_add_options --enable-optimize="-O3"
+#ac_add_options --with-pthreads
+ac_add_options --enable-jemalloc
+ac_add_options --enable-strip
+ac_add_options --enable-devtools
+ac_add_options --enable-av1
+ac_add_options --enable-jxl
+ac_add_options --disable-eme
+ac_add_options --disable-webrtc
+ac_add_options --disable-gamepad
+ac_add_options --disable-tests
+ac_add_options --disable-debug
+ac_add_options --disable-necko-wifi
+ac_add_options --disable-updater
+ac_add_options --with-macos-sdk=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk 
+ac_add_options --host=aarch64-apple-darwin
+ac_add_options --target=aarch64-apple-darwin
+export CXX="/usr/bin/clang++ -std=gnu++11 -stdlib=libc++"
+
+#ac_add_options --disable-installer
+#ac_add_options --enable-release
+#ac_add_options --enable-shared-js
+ 
+ 
+#ac_add_options --x-libraries=/usr/lib
