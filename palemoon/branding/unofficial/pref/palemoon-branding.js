@@ -29,8 +29,17 @@ pref("services.sync.APILevel", 1);
 
 pref("accessibility.force_disabled", 1);
 pref("devtools.selfxss.count", 5);
-pref("startup.homepage_welcome_url","http://www.palemoon.org/unofficial.shtml");
-pref("startup.homepage_override_url","http://www.palemoon.org/unofficial.shtml");
-pref("app.releaseNotesURL", "http://www.palemoon.org/releasenotes.shtml");
+// XXXstroucki advertising
+// used to show an ad
+//pref("startup.homepage_welcome_url","http://www.palemoon.org/unofficial.shtml");
+pref("startup.homepage_welcome_url","about:blank");
+// XXXstroucki advertising
+// used to show an ad
+//pref("startup.homepage_override_url","http://www.palemoon.org/unofficial.shtml");
+pref("startup.homepage_override_url","about:blank");
+// XXXstroucki advertising
+// used to show an ad
+//pref("app.releaseNotesURL", "http://www.palemoon.org/releasenotes.shtml");
+pref("app.releaseNotesURL", "about:blank");
 pref("app.update.enabled", false);
 pref("app.update.url", "");
