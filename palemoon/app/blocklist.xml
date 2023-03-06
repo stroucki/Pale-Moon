@@ -2504,11 +2504,14 @@ xmlns="http://www.mozilla.org/2006/addons-blocklist">
       </versionRange>
       <prefs></prefs>
     </emItem>   
+<!--
+Moonchild blocked adnauseam for disturbing advertisers. Whose side is he on?
     <emItem blockID="pm110" id="adnauseam@rednoise.org">
       <versionRange minVersion="0" maxVersion="*" severity="2">
       </versionRange>
       <prefs></prefs>
     </emItem>   
+-->
     <emItem blockID="pm111" id="customtoolbarsplus@srazzano.com">
       <versionRange minVersion="0" maxVersion="52.4.2" severity="3">
       </versionRange>
