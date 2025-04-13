@@ -8,6 +8,25 @@ The shared Unified XUL Platform source code is referenced here as a git submodul
 ## Getting the platform sub-module
 `git submodule init && git submodule update`
 
+# My modifications
+## Notes
+
+Note where user agent is overridden
+
+## Configuration
+
+Set start pages to about:blank to not start the experience with an ad.
+
+## Other
+
+I don't care if my mods make the browser "hard to use", throw up "big
+scary warnings" or violates "standards" demanded by the advertising
+industry.
+
+To build on the Mac, I only needed autoconf-2.13 and yasm. It builds in
+only 10 minutes. Why did we professionals stop building our own software
+again? I've included my .mozconfig. mach build to start the build process.
+
 ## Resources
 
  * [Build Pale Moon for Windows](https://developer.palemoon.org/build/windows/)
