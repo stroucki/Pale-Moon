@@ -3,10 +3,10 @@ ac_add_options --enable-application=palemoon
  
 mk_add_options MOZ_OBJDIR=/tmp/pm/pmbuild2/
  
-ac_add_options --enable-optimize="-O3"
+ac_add_options --enable-optimize="-g"
 #ac_add_options --with-pthreads
 ac_add_options --enable-jemalloc
-ac_add_options --enable-strip
+#ac_add_options --enable-strip
 ac_add_options --enable-devtools
 ac_add_options --enable-av1
 ac_add_options --enable-jxl
