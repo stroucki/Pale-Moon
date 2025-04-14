@@ -15,6 +15,15 @@ Pale Moon with my mods
 Github repository is <a href="https://github.com/stroucki/Pale-Moon">here</a>.
 </p>
 <p>
+A lot of the text below was written around 2017, when I started using Pale 
+Moon. It is now 2025 and Moonchild has addressed some of the original 
+motivations, including removing support for the battery API. Currently my 
+major differences are removing support for anchor and area pings, messing 
+with the user agent string, and disabling certain blocklist entries 
+Moonchild has set. As precompiled builds for Mac now exist, I no longer
+provide my own.
+</p>
+<p>
 Pale Moon is a browser that was forked from Firefox a while ago. It exists
 because people were unhappy with the design direction that Firefox was taking.
 It does not diverge much from the "browser for everyone" model. Builds
@@ -25,53 +34,46 @@ The average user of a web browser generally takes a binary
 blob from a stranger and uses it for the vast majority of their activities
 online. Even amongst my professional acquaintances, nobody rolls their own
 web browser. Admittedly, Chromium takes massive resources and an age to set
-up and  build,
-but Pale Moon is a lot less demanding.
+up and build, but Pale Moon is a lot less demanding.
 </p>
 <p>
 Pale Moon is a drop in replacement for Firefox. rsync 
 Library/"Application Support"/Firefox to Library/"Application 
 Support"/"Pale Moon" and start it.
+</p>
 <p>
 In my opinion, so many people consuming code someone else cooked has had a 
 pernicious effect on individual freedom. Certain interest groups conspire 
-with standards orgs and browser developers to include features 
-marginally useful for the user, but enabling spying, fingerprinting, 
-analyzing, marketing, and packaging the user for the benefit of 
-advertising concerns. APIs like battery status and geolocation are 
-irrelevant to browsing. Serialization of screen data to ready it for 
-exfiltration doesn't seem right either. Besides being an announcement for
-compatible security holes, user agent strings allow tracking and promote
-discrimination based on the user's choice of 
-browser or unwillingness to upgrade. The developer of Pale Moon includes 
-ad links on startup pages etc. That's sad. I aim to remove or disable 
-those things.
+with standards orgs and browser developers to include features marginally 
+useful for the user, but enabling spying, fingerprinting, analyzing, 
+marketing, and packaging the user for the benefit of advertising concerns. 
+APIs like battery status and geolocation are irrelevant to browsing. 
+Serialization of screen data to ready it for exfiltration doesn't seem 
+right either. Besides being an announcement for compatible security holes, 
+user agent strings allow tracking and promote discrimination based on the 
+user's choice of browser or unwillingness to upgrade. The developer of 
+Pale Moon includes ad links on startup pages etc. That's sad. I aim to 
+remove or disable those things.
 </p>
 
 <p>
-Feel free to try it out. A binary download link for a Mac build of Pale 
-Moon is below, but if you are a technical person I urge you to 
-<b>build it yourself</b>. And you can
-<a href="http://www.shlomifish.org/humour/by-others/funroll-loops/Gentoo-is-Rice.html">
-<tt>-funroll-loops</tt></a>
-it if you wish.
+Feel free to try it out. A binary download is available on <a 
+href="http://www.palemoon.org/">Pale Moon's site</a>, but if you are a 
+technical person I urge you to <b>build it yourself</b>. And you can <a 
+href="http://www.shlomifish.org/humour/by-others/funroll-loops/Gentoo-is-Rice.html"> 
+<tt>-funroll-loops</tt></a> it if you wish.
+</p>
+
+<p>
+The build from source is shockingly easy, and completed in about 10 
+minutes on a Macbook Pro from several years back. I have compiled versions 
+for macos-arm64, macos-amd64, linux-amd64 and linux-i386.
 </p>
 
 <p>
 Pull requests and bug reports welcome.
 </p>
 
-<h2>
-Pale Moon for Macintosh
-</h2>
-<p>
-The build from source is shockingly easy, and completed in about 10
-minutes on a Macbook Pro from several years back. If you want to try it out,
-and not build it yourself, here is a binary unofficial build (so branded New
-Moon) based on checkout
-cf1e79e10182d502fd065076d9652a6e00753fc4
-of my repository: <a href="palemoon-27.9.4.mac64.dmg">palemoon-27.9.4.mac64.dmg</a><!-- , GPG signature: <a href="palemoon-27.6.0a1.mac64.dmg.asc">palemoon-27.6.0a1.mac64.dmg.asc</a> -->, sha1sum: <a href="palemoon-27.9.4.mac64.dmg.sha1">palemoon-27.9.4.mac64.dmg.sha1</a>.
-</p>
 <img src="lynxf.gif" alt="This page is lynx friendly" />
 </body>
 </html>
